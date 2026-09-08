@@ -1,0 +1,366 @@
+import React from 'react';
+import { OrganizationSetup, CountryCode } from '../types/ghg';
+import { Tooltip } from './Tooltip';
+
+interface SetupTabProps {
+  setup: OrganizationSetup;
+  onChange: (updated: Partial<OrganizationSetup>) => void;
+}
+
+export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
+  const handleFrameworkToggle = (fw: string) => {
+    const current = setup.frameworks || [];
+    if (current.includes(fw)) {
+      onChange({ frameworks: current.filter((x) => x !== fw) });
+    } else {
+      onChange({ frameworks: [...current, fw] });
+    }
+  };
+
+  return (
+    <section className="tab-pane">
+      {/* 1. Organization & Reporting */}
+      <div className="form-card">
+        <div className="form-card-header">
+          Organization &amp; Reporting
+          <Tooltip content="Corporate reporting details and regional factor index" showIcon />
+        </div>
+        <div className="form-card-body">
+          <div className="field-desc" style={{ marginBottom: 14 }}>
+            <span className="req">*</span> Required fields for inventory calculation.
+          </div>
+
+          <div className="grid-2col">
+            <div className="form-group">
+              <label className="field-label">
+                Organization name <span className="req">*</span>
+                <Tooltip content="Legal entity name printed on reports" showIcon />
+              </label>
+              <input
+                type="text"
+                value={setup.orgName}
+                onChange={(e) => onChange({ orgName: e.target.value })}
+                placeholder="e.g. Acme Corporation"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="field-label">
+                Country <span className="req">*</span>{' '}
+                <span className="opt">— determines grid/fuel emission factors</span>
+                <Tooltip content="Applies national grid & fuel factors (DEFRA, EPA, IEA)" showIcon />
+              </label>
+              <select
+                value={setup.country}
+                onChange={(e) => onChange({ country: e.target.value as CountryCode })}
+              >
+                <option value="UK">United Kingdom</option>
+                <option value="US">United States</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="IN">India</option>
+                <option value="JP">Japan</option>
+                <option value="AU">Australia</option>
+                <option value="CA">Canada</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid-2col">
+            <div className="form-group">
+              <label className="field-label">
+                State / Region <span className="opt">OPTIONAL</span>
+              </label>
+              <input
+                type="text"
+                value={setup.region}
+                onChange={(e) => onChange({ region: e.target.value })}
+                placeholder="e.g. Maharashtra, California, Greater London..."
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="field-label">
+                Industry <span className="opt">OPTIONAL — for context/reporting only, not used in calculations</span>
+              </label>
+              <select
+                value={setup.industry}
+                onChange={(e) => onChange({ industry: e.target.value })}
+              >
+                <option value="Manufacturing">Manufacturing</option>
+                <option value="Technology & Software">Technology &amp; Software</option>
+                <option value="Financial Services">Financial Services</option>
+                <option value="Retail & Consumer Goods">Retail &amp; Consumer Goods</option>
+                <option value="Healthcare & Pharma">Healthcare &amp; Pharma</option>
+                <option value="Energy & Utilities">Energy &amp; Utilities</option>
+                <option value="Construction & Real Estate">Construction &amp; Real Estate</option>
+                <option value="Transportation & Logistics">Transportation &amp; Logistics</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid-2col">
+            <div className="form-group">
+              <label className="field-label">
+                Reporting year <span className="req">*</span>
+              </label>
+              <select
+                value={setup.reportingYear}
+                onChange={(e) => onChange({ reportingYear: e.target.value })}
+              >
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. GHG Accounting Standards & Boundaries */}
+      <div className="form-card">
+        <div className="form-card-header">
+          GHG Accounting
+          <Tooltip content="Protocol rules, boundaries, and GWP conversion factors" showIcon />
+        </div>
+        <div className="form-card-body">
+          <div className="form-group">
+            <label className="field-label">
+              Accounting standard <span className="req">*</span>
+              <Tooltip content="Inventory framework & Scope 2 dual-reporting rules" showIcon />
+            </label>
+            <div className="field-desc">
+              Defines calculation methodology and whether market-based Scope 2 is enabled.
+            </div>
+            <select
+              value={setup.accountingStandard}
+              onChange={(e) => onChange({ accountingStandard: e.target.value as any })}
+            >
+              <option value="GHG Protocol Corporate Standard">GHG Protocol Corporate Standard</option>
+              <option value="ISO 14064-1:2018">ISO 14064-1:2018</option>
+              <option value="PCAF (financed emissions)">PCAF (financed emissions)</option>
+            </select>
+
+            <table className="meta-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '35%' }}>Standard</th>
+                  <th>What it determines</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className={setup.accountingStandard === 'GHG Protocol Corporate Standard' ? 'selected' : ''}>
+                  <td>
+                    GHG Protocol Corporate Standard
+                    {setup.accountingStandard === 'GHG Protocol Corporate Standard' && (
+                      <span className="meta-badge">SELECTED</span>
+                    )}
+                  </td>
+                  <td>Baseline methodology with market-based Scope 2 dual-reporting.</td>
+                </tr>
+                <tr className={setup.accountingStandard === 'ISO 14064-1:2018' ? 'selected' : ''}>
+                  <td>
+                    ISO 14064-1:2018
+                    {setup.accountingStandard === 'ISO 14064-1:2018' && (
+                      <span className="meta-badge">SELECTED</span>
+                    )}
+                  </td>
+                  <td>Direct and indirect categorizations; market-based Scope 2 omitted.</td>
+                </tr>
+                <tr className={setup.accountingStandard === 'PCAF (financed emissions)' ? 'selected' : ''}>
+                  <td>
+                    PCAF (financed emissions)
+                    {setup.accountingStandard === 'PCAF (financed emissions)' && (
+                      <span className="meta-badge">SELECTED</span>
+                    )}
+                  </td>
+                  <td>For financial institutions reporting financed/facilitated Scope 3 Cat 15 emissions.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="form-group" style={{ marginTop: 22 }}>
+            <label className="field-label">
+              Organizational boundary <span className="req">*</span>
+              <Tooltip content="Consolidation rule for subsidiaries and joint operations" showIcon />
+            </label>
+            <div className="field-desc">
+              Defines how operations and subsidiaries are consolidated across all scopes.
+            </div>
+            <select
+              value={setup.boundary}
+              onChange={(e) => onChange({ boundary: e.target.value as any })}
+            >
+              <option value="">— Not selected —</option>
+              <option value="Operational Control">Operational Control</option>
+              <option value="Financial Control">Financial Control</option>
+              <option value="Equity Share">Equity Share</option>
+            </select>
+
+            <table className="meta-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '35%' }}>Approach</th>
+                  <th>What it includes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className={setup.boundary === 'Operational Control' ? 'selected' : ''}>
+                  <td>
+                    Operational Control
+                    {setup.boundary === 'Operational Control' && <span className="meta-badge">SELECTED</span>}
+                  </td>
+                  <td>100% of emissions from operations you introduce operating policies for.</td>
+                </tr>
+                <tr className={setup.boundary === 'Financial Control' ? 'selected' : ''}>
+                  <td>
+                    Financial Control
+                    {setup.boundary === 'Financial Control' && <span className="meta-badge">SELECTED</span>}
+                  </td>
+                  <td>100% of emissions from operations where you direct financial policies.</td>
+                </tr>
+                <tr className={setup.boundary === 'Equity Share' ? 'selected' : ''}>
+                  <td>
+                    Equity Share
+                    {setup.boundary === 'Equity Share' && <span className="meta-badge">SELECTED</span>}
+                  </td>
+                  <td>Emissions in proportion to your equity ownership share.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            {!setup.boundary && (
+              <div style={{ fontSize: '11.5px', color: '#92580a', marginTop: 6 }}>
+                ⚠ Boundary unselected — required before final verification.
+              </div>
+            )}
+          </div>
+
+          <div className="form-group" style={{ marginTop: 22 }}>
+            <label className="field-label">
+              Global Warming Potential (GWP) basis <span className="req">*</span>
+              <Tooltip content="IPCC 100-year factors converting non-CO2 gases to CO2e" showIcon />
+            </label>
+            <div className="field-desc">
+              Converts non-CO2 gases (methane, N2O, refrigerants) into CO2 equivalents over 100 years.
+            </div>
+            <select
+              value={setup.gwpBasis}
+              onChange={(e) => onChange({ gwpBasis: e.target.value as any })}
+            >
+              <option value="AR5">IPCC AR5 (100-yr)</option>
+              <option value="AR4">IPCC AR4 (100-yr)</option>
+              <option value="AR6">IPCC AR6 (100-yr)</option>
+            </select>
+
+            <table className="meta-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '35%' }}>IPCC Report</th>
+                  <th>What it means here</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className={setup.gwpBasis === 'AR4' ? 'selected' : ''}>
+                  <td>IPCC AR4 (100-yr) (2007)</td>
+                  <td>Fourth Assessment Report values referenced by older regulations.</td>
+                </tr>
+                <tr className={setup.gwpBasis === 'AR5' ? 'selected' : ''}>
+                  <td>
+                    IPCC AR5 (100-yr) (2013–14)
+                    <span className="meta-badge">SELECTED</span>
+                  </td>
+                  <td>Fifth Assessment Report values (default for this tool and primary factors).</td>
+                </tr>
+                <tr className={setup.gwpBasis === 'AR6' ? 'selected' : ''}>
+                  <td>IPCC AR6 (100-yr) (2021)</td>
+                  <td>Sixth Assessment Report values required by newest standards (CSRD/ESRS).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Reporting Frameworks */}
+      <div className="form-card">
+        <div className="form-card-header">
+          Reporting Frameworks <span style={{ fontSize: 12, fontWeight: 'normal', color: '#5e685f' }}>Optional</span>
+          <Tooltip content="Target frameworks for reporting (CSRD, CDP, GRI)" showIcon />
+        </div>
+        <div className="form-card-body">
+          <div className="field-desc">
+            Frameworks you intend to report against; included in export reports and audit trails.
+          </div>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginTop: 10 }}>
+            {['BRSR', 'GRI', 'ISSB / IFRS S2', 'CDP', 'CSRD / ESRS', 'Other'].map((fw) => (
+              <label key={fw} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={setup.frameworks?.includes(fw)}
+                  onChange={() => handleFrameworkToggle(fw)}
+                />
+                <span>{fw}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Advanced Intensity Metrics */}
+      <div className="form-card">
+        <div className="form-card-header">
+          Advanced — intensity metrics (optional)
+          <Tooltip content="Operational activity denominators for carbon intensity KPIs" showIcon />
+        </div>
+        <div className="form-card-body">
+          <div className="field-desc">
+            Enables intensity calculations in Results (per €1k revenue, per FTE, per m² area).
+          </div>
+          <div className="grid-3col">
+            <div className="form-group">
+              <label className="field-label">
+                Annual Revenue (€)
+                <Tooltip content="Gross turnover for revenue intensity" showIcon />
+              </label>
+              <input
+                type="number"
+                value={setup.revenue}
+                onChange={(e) => onChange({ revenue: e.target.value === '' ? '' : Number(e.target.value) })}
+                placeholder="e.g. 20000000"
+              />
+            </div>
+            <div className="form-group">
+              <label className="field-label">
+                Full-Time Employees (FTE)
+                <Tooltip content="Average headcount for per-employee intensity" showIcon />
+              </label>
+              <input
+                type="number"
+                value={setup.fte}
+                onChange={(e) => onChange({ fte: e.target.value === '' ? '' : Number(e.target.value) })}
+                placeholder="e.g. 160"
+              />
+            </div>
+            <div className="form-group">
+              <label className="field-label">
+                Floor Area (m²)
+                <Tooltip content="Facility area for per-m² intensity" showIcon />
+              </label>
+              <input
+                type="number"
+                value={setup.floorArea}
+                onChange={(e) => onChange({ floorArea: e.target.value === '' ? '' : Number(e.target.value) })}
+                placeholder="e.g. 8500"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
