@@ -257,7 +257,7 @@ export function generateAuditJson(
 ): string {
   const exportPayload = {
     schema: 'https://ghgprotocol.org/corporate-standard/v2',
-    generator: 'Carbon Ledger Enterprise Accounting System',
+    generator: 'Carbon Compass Enterprise Accounting System',
     exportTimestamp: new Date().toISOString(),
     organization: {
       name: setup.orgName || 'Your Organization',
@@ -773,7 +773,7 @@ export function generateStandaloneHtmlReport(
       </div>
       <div class="sign-box" style="text-align: right;">
         <div style="display: inline-block; text-align: center; border: 2px solid #163829; padding: 10px 16px; border-radius: 6px;">
-          <div style="font-size: 10px; font-weight: 700; color: #163829; letter-spacing: 0.1em;">CARBON LEDGER</div>
+          <div style="font-size: 10px; font-weight: 700; color: #163829; letter-spacing: 0.1em;">CARBON COMPASS</div>
           <div style="font-size: 12px; font-weight: 800; color: #163829; margin: 2px 0;">ASSURANCE VERIFIED</div>
           <div style="font-size: 9px; color: #58655c;">GHG PROTOCOL COMPLIANT</div>
         </div>

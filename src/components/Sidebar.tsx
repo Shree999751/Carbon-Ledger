@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import {
+  Compass,
   Leaf,
   Building2,
   Layers,
@@ -154,11 +155,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="sidebar-header">
           <div className="sidebar-brand-group">
             <div className="sidebar-logo-box">
-              <Leaf size={18} strokeWidth={2.4} color="#ffffff" />
+              <Compass size={18} strokeWidth={2.4} color="#ffffff" />
             </div>
             {!isCollapsed && (
               <div className="sidebar-brand-text">
-                <div className="sidebar-app-name">Carbon Ledger</div>
+                <div className="sidebar-app-name">Carbon Compass</div>
                 <div className="sidebar-app-sub">GHG Corporate System</div>
               </div>
             )}

@@ -1,4 +1,4 @@
-# Carbon Ledger — Enterprise GHG Accounting & Decarbonization Platform
+# Carbon Compass — Enterprise GHG Accounting & Decarbonization Platform
 
 An enterprise-grade greenhouse gas (GHG) corporate inventory and decarbonization platform aligned with **ISO 14064-1:2018** and the **GHG Protocol Corporate Standard**.
 
