@@ -322,55 +322,61 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
 
           <div className="overview-chart-container">
             <div className="overview-chart-canvas">
-              {/* Reference Gridlines with Real Values */}
-              <div className="overview-gridlines">
-                <div className="overview-gridline">
-                  <span className="overview-gridline-val">{yCeil} t</span>
+              {/* Reference Gridlines with Real Values and Bars */}
+              <div className="overview-plot-area">
+                <div className="overview-gridlines">
+                  <div className="overview-gridline">
+                    <span className="overview-gridline-val">{yCeil} t</span>
+                  </div>
+                  <div className="overview-gridline">
+                    <span className="overview-gridline-val">{Math.round(yCeil * 0.5)} t</span>
+                  </div>
+                  <div className="overview-gridline baseline">
+                    <span className="overview-gridline-val">0 t</span>
+                  </div>
                 </div>
-                <div className="overview-gridline">
-                  <span className="overview-gridline-val">{Math.round(yCeil * 0.5)} t</span>
-                </div>
-                <div className="overview-gridline" style={{ borderBottomStyle: 'solid', borderBottomColor: '#cbd5e1' }}>
-                  <span className="overview-gridline-val">0 t</span>
+
+                {/* Proportional Bars sitting on the baseline */}
+                <div className="overview-bars-row">
+                  {/* Scope 1 */}
+                  <div className="overview-bar-col">
+                    <div className="overview-bar-val">{scope1.totalT.toFixed(1)}t</div>
+                    <div className="overview-bar-track">
+                      <div className="overview-bar-fill s1" style={{ height: `${s1BarH}%` }} />
+                    </div>
+                  </div>
+
+                  {/* Scope 2 */}
+                  <div className="overview-bar-col">
+                    <div className="overview-bar-val">{(scope2.hasMarketBased ? scope2.marketTotalT : 0).toFixed(1)}t</div>
+                    <div className="overview-bar-track">
+                      <div className="overview-bar-fill s2" style={{ height: `${s2BarH}%` }} />
+                    </div>
+                  </div>
+
+                  {/* Scope 3 */}
+                  <div className="overview-bar-col">
+                    <div className="overview-bar-val">{scope3.totalT.toFixed(1)}t</div>
+                    <div className="overview-bar-track">
+                      <div className="overview-bar-fill s3" style={{ height: `${s3BarH}%` }} />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Proportional Bars */}
-              <div className="overview-bars-row">
-                {/* Scope 1 */}
-                <div className="overview-bar-item">
-                  <div className="overview-bar-val">{scope1.totalT.toFixed(1)}t</div>
-                  <div className="overview-bar-track">
-                    <div className="overview-bar-fill s1" style={{ height: `${s1BarH}%` }} />
-                  </div>
-                  <div className="overview-bar-footer">
-                    <span className="overview-bar-name">Scope 1</span>
-                    <span className="overview-bar-pct">{pS1}%</span>
-                  </div>
+              {/* X-Axis Labels: positioned cleanly below the 0 t baseline */}
+              <div className="overview-x-axis">
+                <div className="overview-axis-item">
+                  <span className="overview-bar-name">Scope 1</span>
+                  <span className="overview-bar-pct">{pS1}%</span>
                 </div>
-
-                {/* Scope 2 */}
-                <div className="overview-bar-item">
-                  <div className="overview-bar-val">{(scope2.hasMarketBased ? scope2.marketTotalT : 0).toFixed(1)}t</div>
-                  <div className="overview-bar-track">
-                    <div className="overview-bar-fill s2" style={{ height: `${s2BarH}%` }} />
-                  </div>
-                  <div className="overview-bar-footer">
-                    <span className="overview-bar-name">Scope 2</span>
-                    <span className="overview-bar-pct">{pS2}%</span>
-                  </div>
+                <div className="overview-axis-item">
+                  <span className="overview-bar-name">Scope 2</span>
+                  <span className="overview-bar-pct">{pS2}%</span>
                 </div>
-
-                {/* Scope 3 */}
-                <div className="overview-bar-item">
-                  <div className="overview-bar-val">{scope3.totalT.toFixed(1)}t</div>
-                  <div className="overview-bar-track">
-                    <div className="overview-bar-fill s3" style={{ height: `${s3BarH}%` }} />
-                  </div>
-                  <div className="overview-bar-footer">
-                    <span className="overview-bar-name">Scope 3</span>
-                    <span className="overview-bar-pct">{pS3}%</span>
-                  </div>
+                <div className="overview-axis-item">
+                  <span className="overview-bar-name">Scope 3</span>
+                  <span className="overview-bar-pct">{pS3}%</span>
                 </div>
               </div>
             </div>
