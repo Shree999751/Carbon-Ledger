@@ -27,9 +27,12 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
   const s2Len = (pS2 / 100) * circ;
   const s3Len = (pS3 / 100) * circ;
 
-  // Bar Overview scaling
-  const maxBarVal = Math.max(scope1.totalT, scope2.headlineT, scope3.totalT, grandTotalT, 1);
-  const barH = (v: number) => `${Math.max(4, (v / maxBarVal) * 90)}px`;
+  // Bar Overview scaling (clean proportional ceiling)
+  const maxScopeVal = Math.max(scope1.totalT, scope2.headlineT, scope3.totalT, 1);
+  const yCeil = Math.ceil(maxScopeVal / 25) * 25 || 100;
+  const s1BarH = Math.max(scope1.totalT > 0 ? 6 : 0, Math.min(100, Math.round((scope1.totalT / yCeil) * 100)));
+  const s2BarH = Math.max(scope2.headlineT > 0 ? 6 : 0, Math.min(100, Math.round((scope2.headlineT / yCeil) * 100)));
+  const s3BarH = Math.max(scope3.totalT > 0 ? 6 : 0, Math.min(100, Math.round((scope3.totalT / yCeil) * 100)));
 
   // Top Emission Sources (Verified vs Provisional)
   const verifiedSources = [
@@ -88,9 +91,12 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
             SCOPE 3
             <Tooltip content="Value chain emissions (Categories 1–15); provisional until audited." showIcon />
           </div>
-          <div className="card-val">—</div>
+          <div className="card-val">
+            {scope3.totalT > 0 ? scope3.totalT.toFixed(2) : '—'}{' '}
+            <span className="card-unit">tCO2e</span>
+          </div>
           <div className="card-subtext provisional">
-            {scope3.totalT > 0 ? `⚠ provisional only: ${scope3.totalT.toFixed(2)} t` : 'no data'}
+            {scope3.totalT > 0 ? 'Value chain (screening)' : 'no data'}
           </div>
         </div>
 
@@ -115,306 +121,272 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
 
       {/* 3 WIDGETS ROW: Donut, Intensity, Bar */}
       <div className="widgets-grid modern-widgets-grid">
-        {/* Widget 1: Emissions Breakdown (Donut) */}
+        {/* Widget 1: Scope Breakdown (Donut) */}
         <div className="widget-box modern-widget-box">
           <div className="widget-header-row">
-            <div className="widget-title">Emissions Breakdown</div>
-            <Tooltip content="Proportional breakdown across Scope 1, 2, and 3 modeled footprint" showIcon />
+            <div className="widget-title-group">
+              <span className="widget-title">Scope Breakdown</span>
+              <span className="widget-badge">Gross Footprint</span>
+            </div>
+            <Tooltip content="Proportional breakdown across Scope 1, Scope 2, and Scope 3 modeled footprint" showIcon />
           </div>
 
-          <div className="donut-modern-container">
+          <div className="donut-modern-layout">
             <div className="donut-chart-wrapper">
-              <svg className="donut-chart-svg modern" viewBox="0 0 100 100">
-                {/* Base ring track */}
-                <circle cx="50" cy="50" r="38" fill="none" stroke="#edf3ea" strokeWidth="11" />
-                {/* Scope 1 Arc */}
+              <svg className="donut-chart-svg" viewBox="0 0 120 120">
+                {/* Background track */}
+                <circle cx="60" cy="60" r="44" fill="none" stroke="#f1f5f9" strokeWidth="12" />
+                {/* Scope 1 */}
                 {pS1 > 0 && (
                   <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
+                    cx="60"
+                    cy="60"
+                    r="44"
                     fill="none"
-                    stroke="var(--chart-scope1)"
-                    strokeWidth="11"
-                    strokeDasharray={`${(pS1 / 100) * 238.76} ${238.76}`}
-                    strokeDashoffset="59.69"
+                    stroke="#15803d"
+                    strokeWidth="12"
+                    strokeDasharray={`${(pS1 / 100) * 276.46} ${276.46}`}
+                    strokeDashoffset="69.11"
                     strokeLinecap="round"
                   />
                 )}
-                {/* Scope 2 Arc */}
+                {/* Scope 2 */}
                 {pS2 > 0 && (
                   <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
+                    cx="60"
+                    cy="60"
+                    r="44"
                     fill="none"
-                    stroke="var(--chart-scope2)"
-                    strokeWidth="11"
-                    strokeDasharray={`${(pS2 / 100) * 238.76} ${238.76}`}
-                    strokeDashoffset={59.69 - (pS1 / 100) * 238.76}
+                    stroke="#d97706"
+                    strokeWidth="12"
+                    strokeDasharray={`${(pS2 / 100) * 276.46} ${276.46}`}
+                    strokeDashoffset={69.11 - (pS1 / 100) * 276.46}
                     strokeLinecap="round"
                   />
                 )}
-                {/* Scope 3 Arc */}
+                {/* Scope 3 */}
                 {pS3 > 0 && (
                   <circle
-                    cx="50"
-                    cy="50"
-                    r="38"
+                    cx="60"
+                    cy="60"
+                    r="44"
                     fill="none"
-                    stroke="var(--chart-scope3)"
-                    strokeWidth="11"
-                    strokeDasharray={`${(pS3 / 100) * 238.76} ${238.76}`}
-                    strokeDashoffset={59.69 - ((pS1 + pS2) / 100) * 238.76}
+                    stroke="#2563eb"
+                    strokeWidth="12"
+                    strokeDasharray={`${(pS3 / 100) * 276.46} ${276.46}`}
+                    strokeDashoffset={69.11 - ((pS1 + pS2) / 100) * 276.46}
                     strokeLinecap="round"
                   />
                 )}
               </svg>
-              {/* Donut Center Metrics */}
               <div className="donut-center-overlay">
-                <div className="donut-center-kpi">
-                  {grandTotalT > 0 ? grandTotalT.toFixed(1) : '0.0'}
-                </div>
-                <div className="donut-center-sub">tCO2e Total</div>
+                <span className="donut-center-kpi">{grandTotalT > 0 ? grandTotalT.toFixed(1) : '0.0'}</span>
+                <span className="donut-center-unit">tCO₂e</span>
               </div>
             </div>
 
-            {/* Structured Legend */}
             <div className="donut-legend-modern">
-              <div className="legend-row-card">
-                <div className="legend-accent-bar s1" />
-                <div className="legend-text-col">
-                  <div className="legend-label-row">
-                    <span className="legend-scope-name">Scope 1 Direct</span>
-                    <span className="legend-pct-pill">{pS1}%</span>
+              <div className="legend-row-clean">
+                <div className="legend-row-top">
+                  <div className="legend-name-wrap">
+                    <span className="legend-dot s1" />
+                    <span className="legend-name">Scope 1 (Direct)</span>
                   </div>
-                  <div className="legend-metrics-row">
-                    <span className="legend-metric-val">{scope1.totalT.toFixed(1)} t</span>
-                    <span className="legend-audit-tag verified">Reportable</span>
+                  <div className="legend-val-wrap">
+                    <span className="legend-val">{scope1.totalT.toFixed(1)} t</span>
+                    <span className="legend-pct">{pS1}%</span>
                   </div>
+                </div>
+                <div className="legend-progress-bar">
+                  <div className="legend-progress-fill s1" style={{ width: `${pS1}%` }} />
                 </div>
               </div>
 
-              <div className="legend-row-card">
-                <div className="legend-accent-bar s2" />
-                <div className="legend-text-col">
-                  <div className="legend-label-row">
-                    <span className="legend-scope-name">Scope 2 Energy</span>
-                    <span className="legend-pct-pill">{pS2}%</span>
+              <div className="legend-row-clean">
+                <div className="legend-row-top">
+                  <div className="legend-name-wrap">
+                    <span className="legend-dot s2" />
+                    <span className="legend-name">Scope 2 (Energy)</span>
                   </div>
-                  <div className="legend-metrics-row">
-                    <span className="legend-metric-val">
-                      {(scope2.hasMarketBased ? scope2.marketTotalT : 0).toFixed(1)} t
-                    </span>
-                    <span className="legend-audit-tag">
-                      {scope2.hasMarketBased ? 'Market' : 'Location'}
-                    </span>
+                  <div className="legend-val-wrap">
+                    <span className="legend-val">{(scope2.hasMarketBased ? scope2.marketTotalT : 0).toFixed(1)} t</span>
+                    <span className="legend-pct">{pS2}%</span>
                   </div>
+                </div>
+                <div className="legend-progress-bar">
+                  <div className="legend-progress-fill s2" style={{ width: `${pS2}%` }} />
                 </div>
               </div>
 
-              <div className="legend-row-card">
-                <div className="legend-accent-bar s3" />
-                <div className="legend-text-col">
-                  <div className="legend-label-row">
-                    <span className="legend-scope-name">Scope 3 Supply Chain</span>
-                    <span className="legend-pct-pill">{pS3}%</span>
+              <div className="legend-row-clean">
+                <div className="legend-row-top">
+                  <div className="legend-name-wrap">
+                    <span className="legend-dot s3" />
+                    <span className="legend-name">Scope 3 (Value Chain)</span>
                   </div>
-                  <div className="legend-metrics-row">
-                    <span className="legend-metric-val">{scope3.totalT.toFixed(1)} t</span>
-                    <span className="legend-audit-tag provisional">Provisional</span>
+                  <div className="legend-val-wrap">
+                    <span className="legend-val">{scope3.totalT.toFixed(1)} t</span>
+                    <span className="legend-pct">{pS3}%</span>
                   </div>
+                </div>
+                <div className="legend-progress-bar">
+                  <div className="legend-progress-fill s3" style={{ width: `${pS3}%` }} />
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="chart-clean-footer">
-            <Info size={12} className="chart-footer-icon" />
-            <span>Scope 1 &amp; 2 count toward statutory reportable total. Scope 3 is provisional screening.</span>
           </div>
         </div>
 
         {/* Widget 2: Emissions Intensity Ratios */}
         <div className="widget-box modern-widget-box">
           <div className="widget-header-row">
-            <div className="widget-title">Emissions Intensity Ratios</div>
+            <div className="widget-title-group">
+              <span className="widget-title">Intensity Ratios</span>
+              <span className="widget-badge">Operational KPIs</span>
+            </div>
             <Tooltip content="Operational carbon intensity benchmarks normalized by corporate business drivers" showIcon />
           </div>
 
-          <div className="intensity-tiles-group">
-            {/* Tile 1: Revenue Intensity */}
-            <div className="intensity-tile">
-              <div className="intensity-tile-icon-box rev">
+          <div className="intensity-cards-stack">
+            <div className="intensity-metric-card">
+              <div className="metric-icon-box rev">
                 <TrendingUp size={16} />
               </div>
-              <div className="intensity-tile-content">
-                <div className="intensity-tile-header">
-                  <span className="intensity-tile-title">Revenue Intensity</span>
-                  <span className="intensity-tile-unit">per {currSym}1k turnover</span>
+              <div className="metric-info-col">
+                <div className="metric-title-row">
+                  <span className="metric-title">Revenue Intensity</span>
+                  <span className="metric-unit-badge">kg CO₂e / {currSym}1k</span>
                 </div>
-                <div className="intensity-tile-val">
-                  {intensity.perRevenue !== null ? `${intensity.perRevenue.toFixed(2)} kg` : '—'}
-                </div>
-                <div className="intensity-tile-sub">
-                  {setup.revenue
-                    ? `${grandTotalT.toFixed(1)} t ÷ ${currSym}${Number(setup.revenue).toLocaleString()}`
-                    : 'Configure revenue in Setup'}
+                <div className="metric-val-row">
+                  <span className="metric-number">
+                    {intensity.perRevenue !== null ? intensity.perRevenue.toFixed(2) : '—'}
+                  </span>
+                  <span className="metric-sub-label">
+                    {setup.revenue ? `on ${currSym}${Number(setup.revenue).toLocaleString()} turnover` : 'Turnover pending'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Tile 2: Employee Intensity */}
-            <div className="intensity-tile">
-              <div className="intensity-tile-icon-box fte">
+            <div className="intensity-metric-card">
+              <div className="metric-icon-box fte">
                 <Users size={16} />
               </div>
-              <div className="intensity-tile-content">
-                <div className="intensity-tile-header">
-                  <span className="intensity-tile-title">Headcount Intensity</span>
-                  <span className="intensity-tile-unit">per employee (FTE)</span>
+              <div className="metric-info-col">
+                <div className="metric-title-row">
+                  <span className="metric-title">Headcount Intensity</span>
+                  <span className="metric-unit-badge">tCO₂e / FTE</span>
                 </div>
-                <div className="intensity-tile-val">
-                  {intensity.perFte !== null ? `${intensity.perFte.toFixed(2)} tCO2e` : '—'}
-                </div>
-                <div className="intensity-tile-sub">
-                  {setup.fte
-                    ? `${grandTotalT.toFixed(1)} t ÷ ${setup.fte} staff members`
-                    : 'Configure FTE in Setup'}
+                <div className="metric-val-row">
+                  <span className="metric-number">
+                    {intensity.perFte !== null ? intensity.perFte.toFixed(2) : '—'}
+                  </span>
+                  <span className="metric-sub-label">
+                    {setup.fte ? `across ${setup.fte} employees` : 'Headcount pending'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Tile 3: Floor Area Intensity */}
-            <div className="intensity-tile">
-              <div className="intensity-tile-icon-box area">
+            <div className="intensity-metric-card">
+              <div className="metric-icon-box area">
                 <Building2 size={16} />
               </div>
-              <div className="intensity-tile-content">
-                <div className="intensity-tile-header">
-                  <span className="intensity-tile-title">Facility Intensity</span>
-                  <span className="intensity-tile-unit">per m² floor area</span>
+              <div className="metric-info-col">
+                <div className="metric-title-row">
+                  <span className="metric-title">Facility Intensity</span>
+                  <span className="metric-unit-badge">kg CO₂e / m²</span>
                 </div>
-                <div className="intensity-tile-val">
-                  {intensity.perFloorArea !== null ? `${intensity.perFloorArea.toFixed(2)} kg` : '—'}
-                </div>
-                <div className="intensity-tile-sub">
-                  {setup.floorArea
-                    ? `${grandTotalT.toFixed(1)} t ÷ ${Number(setup.floorArea).toLocaleString()} m² area`
-                    : 'Configure area in Setup'}
+                <div className="metric-val-row">
+                  <span className="metric-number">
+                    {intensity.perFloorArea !== null ? intensity.perFloorArea.toFixed(2) : '—'}
+                  </span>
+                  <span className="metric-sub-label">
+                    {setup.floorArea ? `across ${Number(setup.floorArea).toLocaleString()} m² active area` : 'Area pending'}
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="chart-clean-footer">
-            <Info size={12} className="chart-footer-icon" />
-            <span>Intensity benchmarks update automatically with inventory changes.</span>
           </div>
         </div>
 
-        {/* Widget 3: Overview Column Chart */}
+        {/* Widget 3: Overview Bar Chart */}
         <div className="widget-box modern-widget-box">
           <div className="widget-header-row">
-            <div className="widget-title">Emissions Overview</div>
-            <Tooltip content="Comparative volume of emissions by Scope and combined total" showIcon />
+            <div className="widget-title-group">
+              <span className="widget-title">Emissions Overview</span>
+              <span className="widget-badge">Comparative</span>
+            </div>
+            <Tooltip content="Comparative volume of emissions by Scope with actual tonnages" showIcon />
           </div>
 
-          <div className="modern-column-chart">
-            {/* Horizontal Guide Grid Lines */}
-            <div className="chart-gridlines">
-              <div className="gridline"><span className="gridline-label">100%</span></div>
-              <div className="gridline"><span className="gridline-label">50%</span></div>
-              <div className="gridline baseline" />
-            </div>
-
-            {/* Columns Area */}
-            <div className="chart-columns-flex">
-              {/* Column 1: Scope 1 */}
-              <div className="column-col">
-                <div className="column-val-pill s1">
-                  {scope1.totalT > 0 ? `${scope1.totalT.toFixed(1)}t` : '0t'}
+          <div className="overview-chart-container">
+            <div className="overview-chart-canvas">
+              {/* Reference Gridlines with Real Values */}
+              <div className="overview-gridlines">
+                <div className="overview-gridline">
+                  <span className="overview-gridline-val">{yCeil} t</span>
                 </div>
-                <div className="column-bar-track">
-                  <div
-                    className="column-bar-fill s1"
-                    style={{ height: `${Math.max(6, Math.min(100, Math.round((scope1.totalT / maxBarVal) * 100)))}%` }}
-                  />
+                <div className="overview-gridline">
+                  <span className="overview-gridline-val">{Math.round(yCeil * 0.5)} t</span>
                 </div>
-                <div className="column-footer">
-                  <div className="column-footer-title">
-                    <span className="col-dot s1" />
-                    <span className="col-label">Scope 1</span>
-                  </div>
-                  <span className="col-subpct">{pS1}%</span>
+                <div className="overview-gridline" style={{ borderBottomStyle: 'solid', borderBottomColor: '#cbd5e1' }}>
+                  <span className="overview-gridline-val">0 t</span>
                 </div>
               </div>
 
-              {/* Column 2: Scope 2 */}
-              <div className="column-col">
-                <div className="column-val-pill s2">
-                  {scope2.headlineT > 0 ? `${scope2.headlineT.toFixed(1)}t` : '0t'}
-                </div>
-                <div className="column-bar-track">
-                  <div
-                    className="column-bar-fill s2"
-                    style={{ height: `${Math.max(6, Math.min(100, Math.round((scope2.headlineT / maxBarVal) * 100)))}%` }}
-                  />
-                </div>
-                <div className="column-footer">
-                  <div className="column-footer-title">
-                    <span className="col-dot s2" />
-                    <span className="col-label">Scope 2</span>
+              {/* Proportional Bars */}
+              <div className="overview-bars-row">
+                {/* Scope 1 */}
+                <div className="overview-bar-item">
+                  <div className="overview-bar-val">{scope1.totalT.toFixed(1)}t</div>
+                  <div className="overview-bar-track">
+                    <div className="overview-bar-fill s1" style={{ height: `${s1BarH}%` }} />
                   </div>
-                  <span className="col-subpct">{pS2}%</span>
+                  <div className="overview-bar-footer">
+                    <span className="overview-bar-name">Scope 1</span>
+                    <span className="overview-bar-pct">{pS1}%</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Column 3: Scope 3 */}
-              <div className="column-col">
-                <div className="column-val-pill s3">
-                  {scope3.totalT > 0 ? `${scope3.totalT.toFixed(1)}t` : '0t'}
-                </div>
-                <div className="column-bar-track">
-                  <div
-                    className="column-bar-fill s3"
-                    style={{ height: `${Math.max(6, Math.min(100, Math.round((scope3.totalT / maxBarVal) * 100)))}%` }}
-                  />
-                </div>
-                <div className="column-footer">
-                  <div className="column-footer-title">
-                    <span className="col-dot s3" />
-                    <span className="col-label">Scope 3</span>
+                {/* Scope 2 */}
+                <div className="overview-bar-item">
+                  <div className="overview-bar-val">{(scope2.hasMarketBased ? scope2.marketTotalT : 0).toFixed(1)}t</div>
+                  <div className="overview-bar-track">
+                    <div className="overview-bar-fill s2" style={{ height: `${s2BarH}%` }} />
                   </div>
-                  <span className="col-subpct">{pS3}%</span>
+                  <div className="overview-bar-footer">
+                    <span className="overview-bar-name">Scope 2</span>
+                    <span className="overview-bar-pct">{pS2}%</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Column 4: Total */}
-              <div className="column-col total">
-                <div className="column-val-pill total">
-                  {grandTotalT > 0 ? `${grandTotalT.toFixed(1)}t` : '0t'}
-                </div>
-                <div className="column-bar-track">
-                  <div
-                    className="column-bar-fill total"
-                    style={{ height: `${Math.max(6, Math.min(100, Math.round((grandTotalT / maxBarVal) * 100)))}%` }}
-                  />
-                </div>
-                <div className="column-footer">
-                  <div className="column-footer-title">
-                    <span className="col-dot total" />
-                    <span className="col-label">Total</span>
+                {/* Scope 3 */}
+                <div className="overview-bar-item">
+                  <div className="overview-bar-val">{scope3.totalT.toFixed(1)}t</div>
+                  <div className="overview-bar-track">
+                    <div className="overview-bar-fill s3" style={{ height: `${s3BarH}%` }} />
                   </div>
-                  <span className="col-subpct">100%</span>
+                  <div className="overview-bar-footer">
+                    <span className="overview-bar-name">Scope 3</span>
+                    <span className="overview-bar-pct">{pS3}%</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="chart-clean-footer">
-            <Info size={12} className="chart-footer-icon" />
-            <span>Total bar represents consolidated gross emissions footprint.</span>
+            {/* Executive Inventory Summary Strip */}
+            <div className="overview-summary-strip">
+              <div className="strip-item">
+                <span className="strip-label">Reportable (S1+2):</span>
+                <span className="strip-val">{totalReportableT.toFixed(1)} t</span>
+              </div>
+              <div className="strip-divider" />
+              <div className="strip-item">
+                <span className="strip-label">Gross Total:</span>
+                <span className="strip-val">{grandTotalT.toFixed(1)} t</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
