@@ -18,8 +18,7 @@ import {
   Award,
   X,
 } from 'lucide-react';
-import { MainTabType } from './Navbar';
-import { OrganizationSetup, CalculatedInventory } from '../types/ghg';
+import { MainTabType, OrganizationSetup, CalculatedInventory } from '../types/ghg';
 import { parseCsvFile } from '../utils/csvHelper';
 
 interface SidebarProps {

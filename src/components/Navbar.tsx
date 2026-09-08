@@ -1,6 +1,5 @@
 import React from 'react';
-
-export type MainTabType = 'setup' | 'activity' | 'results' | 'benchmarking' | 'scenarios' | 'report';
+import { MainTabType } from '../types/ghg';
 
 interface NavbarProps {
   activeTab: MainTabType;

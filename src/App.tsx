@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { NotificationBanner } from './components/NotificationBanner';
-import { Navbar, MainTabType } from './components/Navbar';
 import { SetupTab } from './components/SetupTab';
 import { ActivityTab } from './components/ActivityTab';
 import { ResultsTab } from './components/ResultsTab';
@@ -11,6 +10,7 @@ import { ScenariosTab } from './components/ScenariosTab';
 import { ReportTab } from './components/ReportTab';
 
 import {
+  MainTabType,
   OrganizationSetup,
   Scope1Inputs,
   Scope2Inputs,
@@ -275,8 +275,6 @@ export const App: React.FC = () => {
               />
             )}
           </main>
-
-          <Navbar activeTab={activeTab} onChangeTab={(tab) => setActiveTab(tab)} />
 
           {toastMessage && <div className="toast show">{toastMessage}</div>}
         </div>

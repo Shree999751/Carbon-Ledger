@@ -1,5 +1,7 @@
 export type CountryCode = 'UK' | 'US' | 'DE' | 'FR' | 'IN' | 'JP' | 'AU' | 'CA';
 
+export type MainTabType = 'setup' | 'activity' | 'results' | 'benchmarking' | 'scenarios' | 'report';
+
 export interface RegionalFactors {
   grid: number; // kg CO2e / kWh
   gas: number;  // kg CO2e / kWh
