@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { OrganizationSetup, CountryCode, CURRENCIES, getCurrencySymbol } from '../types/ghg';
 import { Tooltip } from './Tooltip';
 
@@ -9,6 +10,22 @@ interface SetupTabProps {
 
 export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
   const currSym = getCurrencySymbol(setup.currency || 'USD');
+
+  const [openGuides, setOpenGuides] = useState<{ standard: boolean; boundary: boolean; gwp: boolean }>({
+    standard: false,
+    boundary: false,
+    gwp: false,
+  });
+
+  const toggleGuide = (key: 'standard' | 'boundary' | 'gwp') => {
+    setOpenGuides((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const allOpen = openGuides.standard && openGuides.boundary && openGuides.gwp;
+  const toggleAllGuides = () => {
+    const next = !allOpen;
+    setOpenGuides({ standard: next, boundary: next, gwp: next });
+  };
 
   const handleFrameworkToggle = (fw: string) => {
     const current = setup.frameworks || [];
@@ -142,10 +159,24 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
       {/* 2. GHG Accounting Standards & Boundaries */}
       <div className="form-card">
         <div className="form-card-header">
-          GHG Accounting
-          <Tooltip content="Protocol rules, boundaries, and GWP conversion factors" showIcon />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            GHG Accounting
+            <Tooltip content="Protocol rules, boundaries, and GWP conversion factors" showIcon />
+          </div>
+          <div className="form-card-header-actions">
+            <button
+              type="button"
+              className="btn-card-action"
+              onClick={toggleAllGuides}
+              title={allOpen ? 'Collapse all comparison guides' : 'Expand all comparison guides'}
+            >
+              {allOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              <span>{allOpen ? 'Collapse All Guides' : 'Expand All Guides'}</span>
+            </button>
+          </div>
         </div>
         <div className="form-card-body">
+          {/* 2.1 Accounting Standard */}
           <div className="form-group">
             <label className="field-label">
               Accounting standard <span className="req">*</span>
@@ -163,45 +194,75 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
               <option value="PCAF (financed emissions)">PCAF (financed emissions)</option>
             </select>
 
-            <table className="meta-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '35%' }}>Standard</th>
-                  <th>What it determines</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className={setup.accountingStandard === 'GHG Protocol Corporate Standard' ? 'selected' : ''}>
-                  <td>
-                    GHG Protocol Corporate Standard
-                    {setup.accountingStandard === 'GHG Protocol Corporate Standard' && (
-                      <span className="meta-badge">SELECTED</span>
-                    )}
-                  </td>
-                  <td>Baseline methodology with market-based Scope 2 dual-reporting.</td>
-                </tr>
-                <tr className={setup.accountingStandard === 'ISO 14064-1:2018' ? 'selected' : ''}>
-                  <td>
-                    ISO 14064-1:2018
-                    {setup.accountingStandard === 'ISO 14064-1:2018' && (
-                      <span className="meta-badge">SELECTED</span>
-                    )}
-                  </td>
-                  <td>Direct and indirect categorizations; market-based Scope 2 omitted.</td>
-                </tr>
-                <tr className={setup.accountingStandard === 'PCAF (financed emissions)' ? 'selected' : ''}>
-                  <td>
-                    PCAF (financed emissions)
-                    {setup.accountingStandard === 'PCAF (financed emissions)' && (
-                      <span className="meta-badge">SELECTED</span>
-                    )}
-                  </td>
-                  <td>For financial institutions reporting financed/facilitated Scope 3 Cat 15 emissions.</td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <button
+                type="button"
+                className={`meta-accordion-toggle ${openGuides.standard ? 'active' : ''}`}
+                onClick={() => toggleGuide('standard')}
+                aria-expanded={openGuides.standard}
+              >
+                <Info size={13} />
+                <span>{openGuides.standard ? 'Hide standards comparison' : 'Compare standards & methodology'}</span>
+                <ChevronDown size={14} className={`meta-accordion-chevron ${openGuides.standard ? 'open' : ''}`} />
+              </button>
+
+              {openGuides.standard && (
+                <div className="meta-accordion-content">
+                  <table className="meta-table meta-table-interactive">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '35%' }}>Standard</th>
+                        <th>What it determines</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        className={setup.accountingStandard === 'GHG Protocol Corporate Standard' ? 'selected' : ''}
+                        onClick={() => onChange({ accountingStandard: 'GHG Protocol Corporate Standard' })}
+                        title="Click to select GHG Protocol Corporate Standard"
+                      >
+                        <td>
+                          GHG Protocol Corporate Standard
+                          {setup.accountingStandard === 'GHG Protocol Corporate Standard' && (
+                            <span className="meta-badge">SELECTED</span>
+                          )}
+                        </td>
+                        <td>Baseline methodology with market-based Scope 2 dual-reporting.</td>
+                      </tr>
+                      <tr
+                        className={setup.accountingStandard === 'ISO 14064-1:2018' ? 'selected' : ''}
+                        onClick={() => onChange({ accountingStandard: 'ISO 14064-1:2018' })}
+                        title="Click to select ISO 14064-1:2018"
+                      >
+                        <td>
+                          ISO 14064-1:2018
+                          {setup.accountingStandard === 'ISO 14064-1:2018' && (
+                            <span className="meta-badge">SELECTED</span>
+                          )}
+                        </td>
+                        <td>Direct and indirect categorizations; market-based Scope 2 omitted.</td>
+                      </tr>
+                      <tr
+                        className={setup.accountingStandard === 'PCAF (financed emissions)' ? 'selected' : ''}
+                        onClick={() => onChange({ accountingStandard: 'PCAF (financed emissions)' })}
+                        title="Click to select PCAF"
+                      >
+                        <td>
+                          PCAF (financed emissions)
+                          {setup.accountingStandard === 'PCAF (financed emissions)' && (
+                            <span className="meta-badge">SELECTED</span>
+                          )}
+                        </td>
+                        <td>For financial institutions reporting financed/facilitated Scope 3 Cat 15 emissions.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
 
+          {/* 2.2 Organizational Boundary */}
           <div className="form-group" style={{ marginTop: 22 }}>
             <label className="field-label">
               Organizational boundary <span className="req">*</span>
@@ -220,37 +281,66 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
               <option value="Equity Share">Equity Share</option>
             </select>
 
-            <table className="meta-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '35%' }}>Approach</th>
-                  <th>What it includes</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className={setup.boundary === 'Operational Control' ? 'selected' : ''}>
-                  <td>
-                    Operational Control
-                    {setup.boundary === 'Operational Control' && <span className="meta-badge">SELECTED</span>}
-                  </td>
-                  <td>100% of emissions from operations you introduce operating policies for.</td>
-                </tr>
-                <tr className={setup.boundary === 'Financial Control' ? 'selected' : ''}>
-                  <td>
-                    Financial Control
-                    {setup.boundary === 'Financial Control' && <span className="meta-badge">SELECTED</span>}
-                  </td>
-                  <td>100% of emissions from operations where you direct financial policies.</td>
-                </tr>
-                <tr className={setup.boundary === 'Equity Share' ? 'selected' : ''}>
-                  <td>
-                    Equity Share
-                    {setup.boundary === 'Equity Share' && <span className="meta-badge">SELECTED</span>}
-                  </td>
-                  <td>Emissions in proportion to your equity ownership share.</td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <button
+                type="button"
+                className={`meta-accordion-toggle ${openGuides.boundary ? 'active' : ''}`}
+                onClick={() => toggleGuide('boundary')}
+                aria-expanded={openGuides.boundary}
+              >
+                <Info size={13} />
+                <span>{openGuides.boundary ? 'Hide boundary approaches' : 'Compare consolidation approaches'}</span>
+                <ChevronDown size={14} className={`meta-accordion-chevron ${openGuides.boundary ? 'open' : ''}`} />
+              </button>
+
+              {openGuides.boundary && (
+                <div className="meta-accordion-content">
+                  <table className="meta-table meta-table-interactive">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '35%' }}>Approach</th>
+                        <th>What it includes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        className={setup.boundary === 'Operational Control' ? 'selected' : ''}
+                        onClick={() => onChange({ boundary: 'Operational Control' })}
+                        title="Click to select Operational Control"
+                      >
+                        <td>
+                          Operational Control
+                          {setup.boundary === 'Operational Control' && <span className="meta-badge">SELECTED</span>}
+                        </td>
+                        <td>100% of emissions from operations you introduce operating policies for.</td>
+                      </tr>
+                      <tr
+                        className={setup.boundary === 'Financial Control' ? 'selected' : ''}
+                        onClick={() => onChange({ boundary: 'Financial Control' })}
+                        title="Click to select Financial Control"
+                      >
+                        <td>
+                          Financial Control
+                          {setup.boundary === 'Financial Control' && <span className="meta-badge">SELECTED</span>}
+                        </td>
+                        <td>100% of emissions from operations where you direct financial policies.</td>
+                      </tr>
+                      <tr
+                        className={setup.boundary === 'Equity Share' ? 'selected' : ''}
+                        onClick={() => onChange({ boundary: 'Equity Share' })}
+                        title="Click to select Equity Share"
+                      >
+                        <td>
+                          Equity Share
+                          {setup.boundary === 'Equity Share' && <span className="meta-badge">SELECTED</span>}
+                        </td>
+                        <td>Emissions in proportion to your equity ownership share.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
 
             {!setup.boundary && (
               <div style={{ fontSize: '11.5px', color: '#92580a', marginTop: 6 }}>
@@ -259,6 +349,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
             )}
           </div>
 
+          {/* 2.3 GWP Basis */}
           <div className="form-group" style={{ marginTop: 22 }}>
             <label className="field-label">
               Global Warming Potential (GWP) basis <span className="req">*</span>
@@ -276,31 +367,66 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
               <option value="AR6">IPCC AR6 (100-yr)</option>
             </select>
 
-            <table className="meta-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '35%' }}>IPCC Report</th>
-                  <th>What it means here</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className={setup.gwpBasis === 'AR4' ? 'selected' : ''}>
-                  <td>IPCC AR4 (100-yr) (2007)</td>
-                  <td>Fourth Assessment Report values referenced by older regulations.</td>
-                </tr>
-                <tr className={setup.gwpBasis === 'AR5' ? 'selected' : ''}>
-                  <td>
-                    IPCC AR5 (100-yr) (2013–14)
-                    <span className="meta-badge">SELECTED</span>
-                  </td>
-                  <td>Fifth Assessment Report values (default for this tool and primary factors).</td>
-                </tr>
-                <tr className={setup.gwpBasis === 'AR6' ? 'selected' : ''}>
-                  <td>IPCC AR6 (100-yr) (2021)</td>
-                  <td>Sixth Assessment Report values required by newest standards (CSRD/ESRS).</td>
-                </tr>
-              </tbody>
-            </table>
+            <div>
+              <button
+                type="button"
+                className={`meta-accordion-toggle ${openGuides.gwp ? 'active' : ''}`}
+                onClick={() => toggleGuide('gwp')}
+                aria-expanded={openGuides.gwp}
+              >
+                <Info size={13} />
+                <span>{openGuides.gwp ? 'Hide IPCC assessment reports' : 'Compare IPCC GWP assessment factors'}</span>
+                <ChevronDown size={14} className={`meta-accordion-chevron ${openGuides.gwp ? 'open' : ''}`} />
+              </button>
+
+              {openGuides.gwp && (
+                <div className="meta-accordion-content">
+                  <table className="meta-table meta-table-interactive">
+                    <thead>
+                      <tr>
+                        <th style={{ width: '35%' }}>IPCC Report</th>
+                        <th>What it means here</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        className={setup.gwpBasis === 'AR4' ? 'selected' : ''}
+                        onClick={() => onChange({ gwpBasis: 'AR4' })}
+                        title="Click to select IPCC AR4"
+                      >
+                        <td>
+                          IPCC AR4 (100-yr) (2007)
+                          {setup.gwpBasis === 'AR4' && <span className="meta-badge">SELECTED</span>}
+                        </td>
+                        <td>Fourth Assessment Report values referenced by older regulations.</td>
+                      </tr>
+                      <tr
+                        className={setup.gwpBasis === 'AR5' ? 'selected' : ''}
+                        onClick={() => onChange({ gwpBasis: 'AR5' })}
+                        title="Click to select IPCC AR5"
+                      >
+                        <td>
+                          IPCC AR5 (100-yr) (2013–14)
+                          {setup.gwpBasis === 'AR5' && <span className="meta-badge">SELECTED</span>}
+                        </td>
+                        <td>Fifth Assessment Report values (default for this tool and primary factors).</td>
+                      </tr>
+                      <tr
+                        className={setup.gwpBasis === 'AR6' ? 'selected' : ''}
+                        onClick={() => onChange({ gwpBasis: 'AR6' })}
+                        title="Click to select IPCC AR6"
+                      >
+                        <td>
+                          IPCC AR6 (100-yr) (2021)
+                          {setup.gwpBasis === 'AR6' && <span className="meta-badge">SELECTED</span>}
+                        </td>
+                        <td>Sixth Assessment Report values required by newest standards (CSRD/ESRS).</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
