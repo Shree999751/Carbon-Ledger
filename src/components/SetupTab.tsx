@@ -1,5 +1,5 @@
 import React from 'react';
-import { OrganizationSetup, CountryCode } from '../types/ghg';
+import { OrganizationSetup, CountryCode, CURRENCIES, getCurrencySymbol } from '../types/ghg';
 import { Tooltip } from './Tooltip';
 
 interface SetupTabProps {
@@ -8,6 +8,8 @@ interface SetupTabProps {
 }
 
 export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
+  const currSym = getCurrencySymbol(setup.currency || 'USD');
+
   const handleFrameworkToggle = (fw: string) => {
     const current = setup.frameworks || [];
     if (current.includes(fw)) {
@@ -23,7 +25,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
       <div className="form-card">
         <div className="form-card-header">
           Organization &amp; Reporting
-          <Tooltip content="Corporate reporting details and regional factor index" showIcon />
+          <Tooltip content="Legal entity metadata, reporting year, and reporting currency" showIcon />
         </div>
         <div className="form-card-body">
           <div className="field-desc" style={{ marginBottom: 14 }}>
@@ -34,7 +36,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
             <div className="form-group">
               <label className="field-label">
                 Organization name <span className="req">*</span>
-                <Tooltip content="Legal entity name printed on reports" showIcon />
+                <Tooltip content="Used as report title and certification header" showIcon />
               </label>
               <input
                 type="text"
@@ -48,7 +50,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
               <label className="field-label">
                 Country <span className="req">*</span>{' '}
                 <span className="opt">— determines grid/fuel emission factors</span>
-                <Tooltip content="Applies national grid & fuel factors (DEFRA, EPA, IEA)" showIcon />
+                <Tooltip content="Select primary country of operations for national grid intensity factors" showIcon />
               </label>
               <select
                 value={setup.country}
@@ -114,6 +116,23 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
                 <option value="2022">2022</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="field-label">
+                Reporting currency <span className="req">*</span>
+                <Tooltip content="Base financial currency used for revenue turnover and carbon intensity ratios" showIcon />
+              </label>
+              <select
+                value={setup.currency || 'USD'}
+                onChange={(e) => onChange({ currency: e.target.value })}
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -319,12 +338,12 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
         </div>
         <div className="form-card-body">
           <div className="field-desc">
-            Enables intensity calculations in Results (per €1k revenue, per FTE, per m² area).
+            Enables intensity calculations in Results (per {currSym}1k revenue, per FTE, per m² area).
           </div>
           <div className="grid-3col">
             <div className="form-group">
               <label className="field-label">
-                Annual Revenue (€)
+                Annual Revenue ({currSym.trim() || setup.currency || 'USD'})
                 <Tooltip content="Gross turnover for revenue intensity" showIcon />
               </label>
               <input

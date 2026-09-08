@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PeerBenchmark, CalculatedInventory, OrganizationSetup } from '../types/ghg';
+import { PeerBenchmark, CalculatedInventory, OrganizationSetup, getCurrencySymbol } from '../types/ghg';
 import { Tooltip } from './Tooltip';
 
 interface BenchmarkingTabProps {
@@ -33,13 +33,15 @@ export const BenchmarkingTab: React.FC<BenchmarkingTabProps> = ({
     setPeers(peers.map((p) => (p.id === id ? { ...p, ...updated } : p)));
   };
 
+  const currSym = getCurrencySymbol(setup.currency || 'USD');
+
   // Compute your organization value for the selected metric
   let yourVal = calculated.totalReportableT;
   let unit = 'tCO2e';
 
   if (metric === 'rev') {
     yourVal = calculated.intensity.perRevenue || 0;
-    unit = 'kg / €1k';
+    unit = `kg / ${currSym}1k`;
   } else if (metric === 'fte') {
     yourVal = calculated.intensity.perFte || 0;
     unit = 'tCO2e / FTE';
@@ -70,7 +72,7 @@ export const BenchmarkingTab: React.FC<BenchmarkingTabProps> = ({
             Compare your emissions against known competitor figures, investor targets, or historical years. All benchmarks are entered manually.
           </div>
 
-          <div className="form-group" style={{ marginTop: 16 }}>
+          <div className="form-group" style={{ marginTop: 16, maxWidth: 380 }}>
             <label className="field-label">
               Comparing on
               <Tooltip
@@ -83,7 +85,7 @@ export const BenchmarkingTab: React.FC<BenchmarkingTabProps> = ({
               onChange={(e) => setMetric(e.target.value as any)}
             >
               <option value="total">Total Reportable Emissions (tCO2e)</option>
-              <option value="rev">Emissions per unit revenue (kg / €1,000)</option>
+              <option value="rev">Emissions per unit revenue (kg / {currSym}1,000)</option>
               <option value="fte">Emissions per employee (tCO2e / FTE)</option>
               <option value="area">Emissions per m² floor area (kg / m²)</option>
             </select>

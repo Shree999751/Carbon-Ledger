@@ -76,6 +76,7 @@ export interface OrganizationSetup {
   region: string;
   industry: string;
   reportingYear: string;
+  currency?: string;
   accountingStandard: 'GHG Protocol Corporate Standard' | 'ISO 14064-1:2018' | 'PCAF (financed emissions)';
   boundary: '' | 'Operational Control' | 'Financial Control' | 'Equity Share';
   gwpBasis: 'AR5' | 'AR4' | 'AR6';
@@ -83,6 +84,33 @@ export interface OrganizationSetup {
   revenue: number | '';
   fte: number | '';
   floorArea: number | '';
+}
+
+export interface CurrencyOption {
+  code: string;
+  symbol: string;
+  label: string;
+}
+
+export const CURRENCIES: CurrencyOption[] = [
+  { code: 'USD', symbol: '$', label: 'USD ($) — United States Dollar' },
+  { code: 'EUR', symbol: '€', label: 'EUR (€) — Euro' },
+  { code: 'GBP', symbol: '£', label: 'GBP (£) — British Pound' },
+  { code: 'INR', symbol: '₹', label: 'INR (₹) — Indian Rupee' },
+  { code: 'CAD', symbol: 'CA$', label: 'CAD ($) — Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$', label: 'AUD ($) — Australian Dollar' },
+  { code: 'JPY', symbol: '¥', label: 'JPY (¥) — Japanese Yen' },
+  { code: 'CHF', symbol: 'CHF ', label: 'CHF (CHF) — Swiss Franc' },
+  { code: 'SGD', symbol: 'S$', label: 'SGD ($) — Singapore Dollar' },
+  { code: 'CNY', symbol: '¥', label: 'CNY (¥) — Chinese Yuan' },
+  { code: 'AED', symbol: 'AED ', label: 'AED (AED) — UAE Dirham' },
+  { code: 'BRL', symbol: 'R$', label: 'BRL (R$) — Brazilian Real' },
+  { code: 'ZAR', symbol: 'R ', label: 'ZAR (R) — South African Rand' },
+];
+
+export function getCurrencySymbol(code?: string): string {
+  const match = CURRENCIES.find((c) => c.code === code);
+  return match ? match.symbol : (code ? `${code} ` : '$');
 }
 
 export interface PeerBenchmark {

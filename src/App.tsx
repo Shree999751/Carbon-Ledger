@@ -45,7 +45,7 @@ export const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.setup) return parsed.setup;
+        if (parsed.setup) return { currency: 'GBP', ...parsed.setup };
       } catch (e) {}
     }
     return {
@@ -54,6 +54,7 @@ export const App: React.FC = () => {
       region: '',
       industry: 'Manufacturing',
       reportingYear: '2026',
+      currency: 'GBP',
       accountingStandard: 'GHG Protocol Corporate Standard',
       boundary: '',
       gwpBasis: 'AR5',

@@ -7,6 +7,7 @@ export const SAMPLE_ORG_SETUP: OrganizationSetup = {
   region: 'Greater London',
   industry: 'Manufacturing',
   reportingYear: '2026',
+  currency: 'GBP',
   accountingStandard: 'GHG Protocol Corporate Standard',
   boundary: '', // Left blank initially as draft alert
   gwpBasis: 'AR5',

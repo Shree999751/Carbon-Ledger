@@ -1,6 +1,6 @@
 import React from 'react';
 import { Info, TrendingUp, Users, Building2 } from 'lucide-react';
-import { OrganizationSetup, CalculatedInventory, RegionalFactors } from '../types/ghg';
+import { OrganizationSetup, CalculatedInventory, RegionalFactors, getCurrencySymbol } from '../types/ghg';
 import { Tooltip } from './Tooltip';
 
 interface ResultsTabProps {
@@ -14,6 +14,7 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
   calculated,
 }) => {
   const { scope1, scope2, scope3, totalReportableT, grandTotalT, intensity } = calculated;
+  const currSym = getCurrencySymbol(setup.currency || 'USD');
 
   // Donut chart calculations
   const totalModeled = grandTotalT > 0 ? grandTotalT : 1;
@@ -250,14 +251,14 @@ export const ResultsTab: React.FC<ResultsTabProps> = ({
               <div className="intensity-tile-content">
                 <div className="intensity-tile-header">
                   <span className="intensity-tile-title">Revenue Intensity</span>
-                  <span className="intensity-tile-unit">per €1k turnover</span>
+                  <span className="intensity-tile-unit">per {currSym}1k turnover</span>
                 </div>
                 <div className="intensity-tile-val">
                   {intensity.perRevenue !== null ? `${intensity.perRevenue.toFixed(2)} kg` : '—'}
                 </div>
                 <div className="intensity-tile-sub">
                   {setup.revenue
-                    ? `${grandTotalT.toFixed(1)} t ÷ €${Number(setup.revenue).toLocaleString()}`
+                    ? `${grandTotalT.toFixed(1)} t ÷ ${currSym}${Number(setup.revenue).toLocaleString()}`
                     : 'Configure revenue in Setup'}
                 </div>
               </div>

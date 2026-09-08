@@ -6,6 +6,7 @@ import {
   CalculatedInventory,
   RegionalFactors,
   DecarbonizationLevers,
+  getCurrencySymbol,
 } from '../types/ghg';
 
 /**
@@ -105,13 +106,14 @@ export function generateAuditCsv(
   add('');
 
   // Section 3: Intensity Metrics
+  const currSym = getCurrencySymbol(setup.currency || 'USD');
   add('CARBON INTENSITY BENCHMARKS');
   add('Intensity Indicator', 'Value', 'Unit', 'Denominator Basis');
   add(
     'Revenue Intensity',
     calculated.intensity.perRevenue !== null ? calculated.intensity.perRevenue.toFixed(3) : 'N/A',
-    'kg CO2e / €1,000 turnover',
-    setup.revenue ? `€${Number(setup.revenue).toLocaleString()}` : 'Not provided'
+    `kg CO2e / ${currSym}1,000 turnover`,
+    setup.revenue ? `${currSym}${Number(setup.revenue).toLocaleString()}` : 'Not provided'
   );
   add(
     'Employee Intensity',
@@ -270,6 +272,8 @@ export function generateAuditJson(
       gwpBasis: setup.gwpBasis,
       disclosureFrameworks: setup.frameworks,
       financialMetrics: {
+        reportingCurrency: setup.currency || 'USD',
+        annualRevenue: setup.revenue !== '' ? Number(setup.revenue) : null,
         annualRevenueEur: setup.revenue !== '' ? Number(setup.revenue) : null,
         fullTimeEmployees: setup.fte !== '' ? Number(setup.fte) : null,
         facilityFloorAreaM2: setup.floorArea !== '' ? Number(setup.floorArea) : null,
@@ -345,6 +349,7 @@ export function generateExecutiveSummaryMarkdown(
   const signName = signatory?.name || 'Sustainability Lead / Environmental Controller';
   const signTitle = signatory?.title || 'Head of ESG & Statutory Assurance';
   const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const currSym = getCurrencySymbol(setup.currency || 'USD');
 
   return `# Corporate Greenhouse Gas Inventory & Disclosure Memo
 
@@ -354,6 +359,7 @@ export function generateExecutiveSummaryMarkdown(
 **Subject:** FY ${yr} Corporate Carbon Footprint & Statutory GHG Protocol Inventory — ${org}  
 **Accounting Standard:** ${setup.accountingStandard} | ISO 14064-1:2018  
 **Consolidation Boundary:** ${setup.boundary || 'Operational Control'}  
+**Reporting Currency:** ${setup.currency || 'USD'} (${currSym.trim()})  
 
 ---
 
@@ -374,7 +380,7 @@ During financial year **${yr}**, ${org} completed its annual corporate greenhous
 ## 2. Carbon Intensity Ratios
 
 Normalized metrics provide comparative baselines for annual tracking and CSRD / ESRS E1 reporting:
-- **Turnover Intensity:** ${calculated.intensity.perRevenue !== null ? `${calculated.intensity.perRevenue.toFixed(2)} kg CO2e per €1,000 revenue` : 'Baseline data pending revenue specification'}
+- **Turnover Intensity:** ${calculated.intensity.perRevenue !== null ? `${calculated.intensity.perRevenue.toFixed(2)} kg CO2e per ${currSym}1,000 revenue` : 'Baseline data pending revenue specification'}
 - **Workforce Intensity:** ${calculated.intensity.perFte !== null ? `${calculated.intensity.perFte.toFixed(2)} tCO2e per full-time employee (FTE)` : 'Baseline data pending headcount'}
 - **Facility Intensity:** ${calculated.intensity.perFloorArea !== null ? `${calculated.intensity.perFloorArea.toFixed(2)} kg CO2e per m² occupied area` : 'Baseline data pending area'}
 
@@ -419,6 +425,7 @@ export function generateStandaloneHtmlReport(
   const signName = signatory?.name || 'Sustainability Lead / Environmental Controller';
   const signTitle = signatory?.title || 'Head of ESG & Statutory Assurance';
   const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const currSym = getCurrencySymbol(setup.currency || 'USD');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -640,8 +647,8 @@ export function generateStandaloneHtmlReport(
         <span>FY ${yr}</span>
       </div>
       <div class="meta-item">
-        <label>Jurisdiction</label>
-        <span>${setup.country}</span>
+        <label>Jurisdiction / Currency</label>
+        <span>${setup.country} (${setup.currency || 'USD'})</span>
       </div>
       <div class="meta-item">
         <label>Accounting Boundary</label>
@@ -745,8 +752,8 @@ export function generateStandaloneHtmlReport(
       <tbody>
         <tr>
           <td>Per Unit Revenue Turnover</td>
-          <td>${setup.revenue ? '€' + Number(setup.revenue).toLocaleString() : 'Not provided'}</td>
-          <td class="val-col">${calculated.intensity.perRevenue !== null ? calculated.intensity.perRevenue.toFixed(2) + ' kg / €1k' : '—'}</td>
+          <td>${setup.revenue ? currSym + Number(setup.revenue).toLocaleString() : 'Not provided'}</td>
+          <td class="val-col">${calculated.intensity.perRevenue !== null ? calculated.intensity.perRevenue.toFixed(2) + ` kg / ${currSym}1k` : '—'}</td>
           <td>CSRD ESRS E1 Aligned</td>
         </tr>
         <tr>
