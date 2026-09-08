@@ -180,11 +180,12 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
           <div className="form-group">
             <label className="field-label">
               Accounting standard <span className="req">*</span>
-              <Tooltip content="Inventory framework & Scope 2 dual-reporting rules" showIcon />
+              <Tooltip
+                content="Defines calculation methodology and whether market-based Scope 2 is enabled."
+                showIcon
+                maxWidth={280}
+              />
             </label>
-            <div className="field-desc">
-              Defines calculation methodology and whether market-based Scope 2 is enabled.
-            </div>
             <select
               value={setup.accountingStandard}
               onChange={(e) => onChange({ accountingStandard: e.target.value as any })}
@@ -266,11 +267,12 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
           <div className="form-group" style={{ marginTop: 22 }}>
             <label className="field-label">
               Organizational boundary <span className="req">*</span>
-              <Tooltip content="Consolidation rule for subsidiaries and joint operations" showIcon />
+              <Tooltip
+                content="Defines how operations and subsidiaries are consolidated across all scopes (Operational Control, Financial Control, Equity Share)."
+                showIcon
+                maxWidth={280}
+              />
             </label>
-            <div className="field-desc">
-              Defines how operations and subsidiaries are consolidated across all scopes.
-            </div>
             <select
               value={setup.boundary}
               onChange={(e) => onChange({ boundary: e.target.value as any })}
@@ -353,11 +355,12 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
           <div className="form-group" style={{ marginTop: 22 }}>
             <label className="field-label">
               Global Warming Potential (GWP) basis <span className="req">*</span>
-              <Tooltip content="IPCC 100-year factors converting non-CO2 gases to CO2e" showIcon />
+              <Tooltip
+                content="Converts non-CO2 gases (methane, N2O, refrigerants) into CO2 equivalents over 100 years based on IPCC assessment reports."
+                showIcon
+                maxWidth={280}
+              />
             </label>
-            <div className="field-desc">
-              Converts non-CO2 gases (methane, N2O, refrigerants) into CO2 equivalents over 100 years.
-            </div>
             <select
               value={setup.gwpBasis}
               onChange={(e) => onChange({ gwpBasis: e.target.value as any })}
