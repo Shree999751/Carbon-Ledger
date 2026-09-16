@@ -72,11 +72,53 @@ export interface Scope3CategoryInput {
   status: 'verified' | 'provisional';
 }
 
+export interface StakeholderContact {
+  name: string;
+  email: string;
+  role: string;
+  phone?: string;
+}
+
+export interface ComplianceProject {
+  id: string;
+  code: string;
+  title: string;
+  category: 'consultation' | 'reporting' | 'dashboarding' | 'assessment' | 'certification';
+  targetDate: string; // e.g. "2026-09-05"
+  status: 'running' | 'completed' | 'overdue' | 'on-hold';
+  phaseCurrent: number;
+  phaseTotal: number;
+  phaseName: string;
+  progressPct: number;
+  nextMilestone: string;
+  gateText?: string;
+  cardFooterStatus: 'CLEAR' | 'WITH CLIENT' | 'WITH AUDITOR';
+  driveFolder?: string;
+}
+
 export interface OrganizationSetup {
   orgName: string;
-  country: CountryCode;
-  region: string;
+  legalName?: string;
+  taxId?: string; // GSTIN / Tax ID / EIN
   industry: string;
+  country: CountryCode;
+  city?: string;
+  state?: string;
+  region: string;
+  address?: string;
+  website?: string;
+  driveFolder?: string;
+  clientCode?: string; // e.g. CL001
+  selectedEntity?: string;
+  entities?: string[];
+  primaryContact?: StakeholderContact;
+  secondaryContact?: StakeholderContact;
+  portalSeats?: {
+    supervisor: string;
+    member: string;
+    special: string;
+  };
+  clientPortalVisible?: boolean;
   reportingYear: string;
   currency?: string;
   accountingStandard: 'GHG Protocol Corporate Standard' | 'ISO 14064-1:2018' | 'PCAF (financed emissions)';

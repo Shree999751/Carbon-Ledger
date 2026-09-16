@@ -16,6 +16,7 @@ import {
   Scope2Inputs,
   Scope3CategoryInput,
   DecarbonizationLevers,
+  ComplianceProject,
 } from './types/ghg';
 import {
   REGIONAL_EMISSION_FACTORS,
@@ -26,6 +27,7 @@ import {
   SAMPLE_SCOPE1,
   SAMPLE_SCOPE2,
   getSampleScope3,
+  SAMPLE_COMPLIANCE_PROJECTS,
 } from './data/sampleData';
 import { calculateInventory } from './utils/calculator';
 
@@ -128,6 +130,21 @@ export const App: React.FC = () => {
     travelOptimizationPct: 0,
   });
 
+  // Compliance & ESG Projects State
+  const [projects, setProjects] = useState<ComplianceProject[]>(() => {
+    const saved = localStorage.getItem('CARBON_COMPASS_PROJECTS_V1');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return SAMPLE_COMPLIANCE_PROJECTS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('CARBON_COMPASS_PROJECTS_V1', JSON.stringify(projects));
+  }, [projects]);
+
   // Persist state to localStorage
   useEffect(() => {
     const payload = { setup, scope1, scope2, scope3 };
@@ -151,6 +168,7 @@ export const App: React.FC = () => {
     setScope1(SAMPLE_SCOPE1);
     setScope2(SAMPLE_SCOPE2);
     setScope3(getSampleScope3());
+    setProjects(SAMPLE_COMPLIANCE_PROJECTS);
     setIsSampleLoaded(true);
     showToast('Illustrative sample data loaded!');
   };
@@ -223,6 +241,14 @@ export const App: React.FC = () => {
               <SetupTab
                 setup={setup}
                 onChange={(upd) => setSetup((prev) => ({ ...prev, ...upd }))}
+                projects={projects}
+                onUpdateProject={(upd) =>
+                  setProjects((prev) => prev.map((p) => (p.id === upd.id ? upd : p)))
+                }
+                onAddProject={(p) => setProjects((prev) => [p, ...prev])}
+                onOpenDriveFolder={(folder) => {
+                  showToast(`Accessing Cloud Evidence Drive: ${folder || '44 EMB Studios'}`);
+                }}
               />
             )}
 

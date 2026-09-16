@@ -1,15 +1,49 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Info } from 'lucide-react';
-import { OrganizationSetup, CountryCode, CURRENCIES, getCurrencySymbol } from '../types/ghg';
+import {
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Building,
+  Building2,
+  Mail,
+  Globe,
+  MapPin,
+  FileCheck,
+  ExternalLink,
+  Users,
+  MoreVertical,
+  Folder,
+  Share2,
+  Bell,
+  Trash2,
+  Plus,
+  CheckCircle,
+  Clock,
+} from 'lucide-react';
+import { OrganizationSetup, CountryCode, CURRENCIES, getCurrencySymbol, ComplianceProject } from '../types/ghg';
 import { Tooltip } from './Tooltip';
+// import { ProjectsTracker } from './ProjectsTracker';
 
 interface SetupTabProps {
   setup: OrganizationSetup;
   onChange: (updated: Partial<OrganizationSetup>) => void;
+  projects?: ComplianceProject[];
+  onUpdateProject?: (p: ComplianceProject) => void;
+  onAddProject?: (p: ComplianceProject) => void;
+  onOpenDriveFolder?: (folder?: string) => void;
 }
 
-export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
+export const SetupTab: React.FC<SetupTabProps> = ({
+  setup,
+  onChange,
+  projects = [],
+  onUpdateProject,
+  onAddProject,
+  onOpenDriveFolder,
+}) => {
   const currSym = getCurrencySymbol(setup.currency || 'USD');
+  const [showCompanyMenu, setShowCompanyMenu] = useState(false);
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
 
   const [openGuides, setOpenGuides] = useState<{ standard: boolean; boundary: boolean; gwp: boolean }>({
     standard: false,
@@ -36,51 +70,402 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
     }
   };
 
+
+  const runningCount = projects.filter((p) => p.status === 'running' || p.status === 'overdue').length;
+
   return (
-    <section className="tab-pane">
-      {/* 1. Organization & Reporting */}
+    <section className="tab-pane setup-tab-pane">
+      {/* 0. Top Entity Overview & Action Header (Matching Reference Screenshot) */}
+      <div className="client-entity-banner">
+        <div className="client-breadcrumb">
+          <span className="breadcrumb-arrow">←</span>
+          <span className="breadcrumb-text">CLIENTS</span>
+        </div>
+
+        <div className="client-header-main-row">
+          <div className="client-title-area">
+            <div className="client-title-line">
+              <h2 className="client-main-name">{setup.orgName || '44 EMB Studios'}</h2>
+              <span className="client-running-dot">•</span>
+              <span className="client-running-badge">{runningCount} PROJECTS RUNNING</span>
+            </div>
+            <div className="client-subline-meta">
+              <span>{setup.clientCode || 'CL001'}</span>
+              <span>•</span>
+              <span>{(setup.industry || 'HAND EMBROIDERY').toUpperCase()}</span>
+              <span>•</span>
+              <span>{(setup.city || 'MUMBAI').toUpperCase()}</span>
+            </div>
+          </div>
+
+          <div className="client-header-quick-actions">
+            {/* Google Drive Link */}
+            <button
+              type="button"
+              className="quick-icon-btn drive-btn"
+              title={`Open Client Evidence Folder (${setup.driveFolder || 'Google Drive'})`}
+              onClick={() => onOpenDriveFolder && onOpenDriveFolder(setup.driveFolder)}
+            >
+              <svg width="20" height="20" viewBox="0 0 87.3 78" className="drive-svg-icon">
+                <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8H0c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.5l5.85 10.15z" fill="#ea4335"/>
+                <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+              </svg>
+            </button>
+
+            {/* External Link */}
+            <a
+              href={setup.website || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="quick-icon-btn"
+              title="Visit Corporate Website"
+            >
+              <ExternalLink size={18} />
+            </a>
+
+            {/* Notification Bell with Badge */}
+            <button
+              type="button"
+              className="quick-icon-btn notif-btn"
+              title="6 Client Audit Notifications"
+            >
+              <Bell size={18} />
+              <span className="notif-badge">6</span>
+            </button>
+
+            {/* 3-Dots Actions Menu */}
+            <div className="relative-actions-wrapper" style={{ position: 'relative' }}>
+              <button
+                type="button"
+                className="quick-icon-btn"
+                title="Company & Work Actions"
+                onClick={() => setShowCompanyMenu(!showCompanyMenu)}
+              >
+                <MoreVertical size={18} />
+              </button>
+
+              {showCompanyMenu && (
+                <div className="company-actions-dropdown">
+                  <div className="dropdown-section-title">THE COMPANY</div>
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      setShowCompanyMenu(false);
+                      const el = document.getElementById('company-card-anchor');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <Building size={15} />
+                    <span>Company profile</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      setShowCompanyMenu(false);
+                      const el = document.getElementById('company-card-anchor');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <FileCheck size={15} />
+                    <span>Edit company details</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      setShowCompanyMenu(false);
+                      alert('Manual report filing module ready. Upload audit evidence or certificate.');
+                    }}
+                  >
+                    <Folder size={15} />
+                    <span>File a document by hand</span>
+                  </button>
+                  <div className="dropdown-item-toggle">
+                    <div className="toggle-label-group">
+                      <span className="toggle-title">Company on client portal</span>
+                      <span className="toggle-sub">They can sign in and see what is published to them</span>
+                    </div>
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={setup.clientPortalVisible !== false}
+                        onChange={(e) => onChange({ clientPortalVisible: e.target.checked })}
+                      />
+                      <span className="slider round" />
+                    </label>
+                  </div>
+
+                  <div className="dropdown-divider" />
+                  <div className="dropdown-section-title">THE WORK</div>
+                  
+                  <button
+                    type="button"
+                    className="dropdown-item"
+                    onClick={() => {
+                      setShowCompanyMenu(false);
+                      setShowAddContactModal(true);
+                    }}
+                  >
+                    <Users size={15} />
+                    <span>Assign managers</span>
+                  </button>
+                  
+
+                  <div className="dropdown-divider" />
+                  <button
+                    type="button"
+                    className="dropdown-item danger-item"
+                    onClick={() => {
+                      setShowCompanyMenu(false);
+                      if (window.confirm('Reset this entity setup back to blank?')) {
+                        onChange({ orgName: '', legalName: '', taxId: '', address: '' });
+                      }
+                    }}
+                  >
+                    <Trash2 size={15} />
+                    <span>Reset company record</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 1. COMPANY & CONTACTS SPLIT ROW (Matching Reference Screenshot 2) */}
+      <div className="client-profile-grid" id="company-card-anchor">
+        {/* Left Column: COMPANY Card */}
+        <div className="form-card entity-profile-card">
+          <div className="form-card-header clean-header">
+            <span className="header-label-caps">COMPANY</span>
+          </div>
+          <div className="form-card-body entity-card-body">
+            <div className="entity-info-grid">
+              <div className="entity-field-group">
+                <span className="entity-field-label">LEGAL NAME</span>
+                <input
+                  type="text"
+                  className="clean-field-input"
+                  value={setup.legalName || ''}
+                  placeholder="e.g. 44 EMB Studio Pvt. Ltd."
+                  onChange={(e) => onChange({ legalName: e.target.value })}
+                />
+              </div>
+
+              <div className="entity-field-group">
+                <span className="entity-field-label">INDUSTRY</span>
+                <input
+                  type="text"
+                  className="clean-field-input"
+                  value={setup.industry || ''}
+                  placeholder="e.g. Hand Embroidery"
+                  onChange={(e) => onChange({ industry: e.target.value })}
+                />
+              </div>
+
+              <div className="entity-field-row-half">
+                <div className="entity-field-group">
+                  <span className="entity-field-label">CITY</span>
+                  <input
+                    type="text"
+                    className="clean-field-input"
+                    value={setup.city || ''}
+                    placeholder="e.g. Mumbai"
+                    onChange={(e) => onChange({ city: e.target.value })}
+                  />
+                </div>
+                <div className="entity-field-group">
+                  <span className="entity-field-label">STATE / REGION</span>
+                  <input
+                    type="text"
+                    className="clean-field-input"
+                    value={setup.state || setup.region || ''}
+                    placeholder="e.g. Maharashtra"
+                    onChange={(e) => onChange({ state: e.target.value, region: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="entity-field-group">
+                <span className="entity-field-label">TAX ID / GSTIN</span>
+                <input
+                  type="text"
+                  className="clean-field-input"
+                  value={setup.taxId || ''}
+                  placeholder="e.g. 27AABCZ0681L1ZY"
+                  onChange={(e) => onChange({ taxId: e.target.value })}
+                />
+              </div>
+
+              <div className="entity-field-group">
+                <span className="entity-field-label">OPERATING ADDRESS</span>
+                <textarea
+                  rows={2}
+                  className="clean-field-textarea"
+                  value={setup.address || ''}
+                  placeholder="Facility / Plant / Headquarters address..."
+                  onChange={(e) => onChange({ address: e.target.value })}
+                />
+              </div>
+
+              <div className="entity-field-row-half">
+                <div className="entity-field-group">
+                  <span className="entity-field-label">WEBSITE</span>
+                  <input
+                    type="text"
+                    className="clean-field-input"
+                    value={setup.website || ''}
+                    placeholder="https://..."
+                    onChange={(e) => onChange({ website: e.target.value })}
+                  />
+                </div>
+                <div className="entity-field-group">
+                  <span className="entity-field-label">DRIVE FOLDER / EVIDENCE REPO</span>
+                  <input
+                    type="text"
+                    className="clean-field-input"
+                    value={setup.driveFolder || ''}
+                    placeholder="01: 44 EMB Studios"
+                    onChange={(e) => onChange({ driveFolder: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="entity-field-group" style={{ marginTop: 4 }}>
+                <span className="entity-field-label">COMPANY ENTITY / FACILITY SELECTOR</span>
+                <select
+                  className="clean-field-select"
+                  value={setup.selectedEntity || (setup.entities && setup.entities[0]) || '44 EMB Studios - Mumbai'}
+                  onChange={(e) => onChange({ selectedEntity: e.target.value })}
+                >
+                  {(setup.entities && setup.entities.length > 0) ? (
+                    setup.entities.map((ent) => (
+                      <option key={ent} value={ent}>{ent}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="44 EMB Studios - Mumbai">44 EMB Studios - Mumbai</option>
+                      <option value="44 EMB Studios - Surat Facility">44 EMB Studios - Surat Facility</option>
+                      <option value="44 EMB Studios - London Showroom">44 EMB Studios - London Showroom</option>
+                    </>
+                  )}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: CONTACTS & OTHER CONTACTS */}
+        <div className="entity-contacts-column">
+          {/* Contacts Card */}
+          <div className="form-card entity-contacts-card">
+            <div className="form-card-header clean-header">
+              <span className="header-label-caps">CONTACTS</span>
+            </div>
+            <div className="form-card-body contacts-card-body">
+              <div className="contact-item-block">
+                <div className="contact-role-sub">PRIMARY CONTACT • ACCOUNT MANAGER</div>
+                <div className="contact-person-name">
+                  {setup.primaryContact?.name || 'Ms. Sufera Adenwala'}
+                </div>
+                <div className="contact-person-email">
+                  {setup.primaryContact?.email || 'sufera@44embstudio.com'}
+                </div>
+              </div>
+
+              <div className="contact-divider" />
+
+              <div className="contact-item-block">
+                <div className="contact-role-sub">SECONDARY CONTACT • AUDIT COORDINATOR</div>
+                <div className="contact-person-name">
+                  {setup.secondaryContact?.name || 'Ms. Misbah Kapadia'}
+                </div>
+                <div className="contact-person-email">
+                  {setup.secondaryContact?.email || 'admin-2@44embstudio.com'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Other Contacts & Client Portal Seats Card */}
+          <div className="form-card portal-seats-card">
+            <div className="form-card-header clean-header">
+              <span className="header-label-caps">OTHER CONTACTS</span>
+            </div>
+            <div className="form-card-body seats-card-body">
+              <div className="seats-bar">
+                <span className="seats-label">CLIENT PORTAL SEATS</span>
+                <span className="seat-chip">Supervisor <strong>{setup.portalSeats?.supervisor || '1 of 1'}</strong></span>
+                <span className="seat-chip">Member <strong>{setup.portalSeats?.member || '2 of 2'}</strong></span>
+                <span className="seat-chip">Special seat <strong>{setup.portalSeats?.special || '1 of 1'}</strong></span>
+                <button
+                  type="button"
+                  className="add-seat-icon-btn"
+                  title="Add user seat or invite team member"
+                  onClick={() => setShowAddContactModal(true)}
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+              <p className="seats-disclaimer-text">
+                Only the primary and secondary contacts are on file. Anyone else who matters goes here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Projects section removed */}
+
+      {/* 3. GHG Protocol & Reporting Baseline (Core Calculation Foundation) */}
       <div className="form-card">
         <div className="form-card-header">
-          Organization &amp; Reporting
+          Organization &amp; Reporting Baseline
           <Tooltip content="Legal entity metadata, reporting year, and reporting currency" showIcon />
         </div>
         <div className="form-card-body">
           <div className="field-desc" style={{ marginBottom: 14 }}>
-            <span className="req">*</span> Required fields for inventory calculation.
+            <span className="req">*</span> Required parameters for emissions factors selection &amp; conversion.
           </div>
 
           <div className="grid-2col">
             <div className="form-group">
               <label className="field-label">
-                Organization name <span className="req">*</span>
+                Reporting Entity Display Name <span className="req">*</span>
                 <Tooltip content="Used as report title and certification header" showIcon />
               </label>
               <input
                 type="text"
                 value={setup.orgName}
                 onChange={(e) => onChange({ orgName: e.target.value })}
-                placeholder="e.g. Acme Corporation"
+                placeholder="e.g. 44 EMB Studios"
               />
             </div>
 
             <div className="form-group">
               <label className="field-label">
-                Country <span className="req">*</span>{' '}
-                <span className="opt">— determines grid/fuel emission factors</span>
-                <Tooltip content="Select primary country of operations for national grid intensity factors" showIcon />
+                Primary Operational Country <span className="req">*</span>{' '}
+                <span className="opt">— determines grid &amp; fuel factors</span>
+                <Tooltip content="Select country of primary operations for national grid intensity factors" showIcon />
               </label>
               <select
                 value={setup.country}
                 onChange={(e) => onChange({ country: e.target.value as CountryCode })}
               >
-                <option value="UK">United Kingdom</option>
-                <option value="US">United States</option>
-                <option value="DE">Germany</option>
-                <option value="FR">France</option>
-                <option value="IN">India</option>
-                <option value="JP">Japan</option>
-                <option value="AU">Australia</option>
-                <option value="CA">Canada</option>
+                <option value="IN">India (IN - CEA Grid Factor)</option>
+                <option value="UK">United Kingdom (UK - DESNZ 2024)</option>
+                <option value="US">United States (US - eGRID 2024)</option>
+                <option value="DE">Germany (DE - UBA 2024)</option>
+                <option value="FR">France (FR - ADEME 2024)</option>
+                <option value="JP">Japan (JP - MOE 2024)</option>
+                <option value="AU">Australia (AU - NGA 2024)</option>
+                <option value="CA">Canada (CA - NIR 2024)</option>
               </select>
             </div>
           </div>
@@ -88,47 +473,13 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
           <div className="grid-2col">
             <div className="form-group">
               <label className="field-label">
-                State / Region <span className="opt">OPTIONAL</span>
-              </label>
-              <input
-                type="text"
-                value={setup.region}
-                onChange={(e) => onChange({ region: e.target.value })}
-                placeholder="e.g. Maharashtra, California, Greater London..."
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="field-label">
-                Industry <span className="opt">OPTIONAL — for context/reporting only, not used in calculations</span>
-              </label>
-              <select
-                value={setup.industry}
-                onChange={(e) => onChange({ industry: e.target.value })}
-              >
-                <option value="Manufacturing">Manufacturing</option>
-                <option value="Technology & Software">Technology &amp; Software</option>
-                <option value="Financial Services">Financial Services</option>
-                <option value="Retail & Consumer Goods">Retail &amp; Consumer Goods</option>
-                <option value="Healthcare & Pharma">Healthcare &amp; Pharma</option>
-                <option value="Energy & Utilities">Energy &amp; Utilities</option>
-                <option value="Construction & Real Estate">Construction &amp; Real Estate</option>
-                <option value="Transportation & Logistics">Transportation &amp; Logistics</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid-2col">
-            <div className="form-group">
-              <label className="field-label">
-                Reporting year <span className="req">*</span>
+                Reporting Year <span className="req">*</span>
               </label>
               <select
                 value={setup.reportingYear}
                 onChange={(e) => onChange({ reportingYear: e.target.value })}
               >
-                <option value="2026">2026</option>
+                <option value="2026">2026 (Active reporting period)</option>
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
@@ -138,11 +489,11 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
 
             <div className="form-group">
               <label className="field-label">
-                Reporting currency <span className="req">*</span>
+                Reporting Currency <span className="req">*</span>
                 <Tooltip content="Base financial currency used for revenue turnover and carbon intensity ratios" showIcon />
               </label>
               <select
-                value={setup.currency || 'USD'}
+                value={setup.currency || 'INR'}
                 onChange={(e) => onChange({ currency: e.target.value })}
               >
                 {CURRENCIES.map((c) => (
@@ -155,6 +506,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
           </div>
         </div>
       </div>
+
 
       {/* 2. GHG Accounting Standards & Boundaries */}
       <div className="form-card">
@@ -509,6 +861,149 @@ export const SetupTab: React.FC<SetupTabProps> = ({ setup, onChange }) => {
           </div>
         </div>
       </div>
+
+      {/* Contact Assignment & Seats Modal */}
+      {showAddContactModal && (
+        <div className="modal-overlay" onClick={() => setShowAddContactModal(false)}>
+          <div className="modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 460 }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Stakeholder &amp; Verification Seats</h3>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowAddContactModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group" style={{ marginBottom: 12 }}>
+                <label className="field-label">Primary Contact / Account Lead</label>
+                <input
+                  type="text"
+                  value={setup.primaryContact?.name || ''}
+                  placeholder="Full Name (e.g. Ms. Sufera Adenwala)"
+                  onChange={(e) =>
+                    onChange({
+                      primaryContact: {
+                        name: e.target.value,
+                        email: setup.primaryContact?.email || '',
+                        role: setup.primaryContact?.role || 'Primary Contact & ESG Lead',
+                      },
+                    })
+                  }
+                  style={{ marginBottom: 6 }}
+                />
+                <input
+                  type="email"
+                  value={setup.primaryContact?.email || ''}
+                  placeholder="name@company.com"
+                  onChange={(e) =>
+                    onChange({
+                      primaryContact: {
+                        name: setup.primaryContact?.name || '',
+                        email: e.target.value,
+                        role: setup.primaryContact?.role || 'Primary Contact & ESG Lead',
+                      },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 14 }}>
+                <label className="field-label">Secondary / Lead Verification Contact</label>
+                <input
+                  type="text"
+                  value={setup.secondaryContact?.name || ''}
+                  placeholder="Full Name (e.g. Ms. Misbah Kapadia)"
+                  onChange={(e) =>
+                    onChange({
+                      secondaryContact: {
+                        name: e.target.value,
+                        email: setup.secondaryContact?.email || '',
+                        role: setup.secondaryContact?.role || 'Lead Auditor / Coordinator',
+                      },
+                    })
+                  }
+                  style={{ marginBottom: 6 }}
+                />
+                <input
+                  type="email"
+                  value={setup.secondaryContact?.email || ''}
+                  placeholder="auditor@company.com"
+                  onChange={(e) =>
+                    onChange({
+                      secondaryContact: {
+                        name: setup.secondaryContact?.name || '',
+                        email: e.target.value,
+                        role: setup.secondaryContact?.role || 'Lead Auditor / Coordinator',
+                      },
+                    })
+                  }
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 16 }}>
+                <label className="field-label">Client Portal Seat Allocation</label>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <input
+                    type="text"
+                    title="Supervisor Seats"
+                    value={setup.portalSeats?.supervisor || '1 of 1'}
+                    onChange={(e) =>
+                      onChange({
+                        portalSeats: {
+                          supervisor: e.target.value,
+                          member: setup.portalSeats?.member || '2 of 2',
+                          special: setup.portalSeats?.special || '1 of 1',
+                        },
+                      })
+                    }
+                  />
+                  <input
+                    type="text"
+                    title="Member Seats"
+                    value={setup.portalSeats?.member || '2 of 2'}
+                    onChange={(e) =>
+                      onChange({
+                        portalSeats: {
+                          supervisor: setup.portalSeats?.supervisor || '1 of 1',
+                          member: e.target.value,
+                          special: setup.portalSeats?.special || '1 of 1',
+                        },
+                      })
+                    }
+                  />
+                  <input
+                    type="text"
+                    title="Special Seat"
+                    value={setup.portalSeats?.special || '1 of 1'}
+                    onChange={(e) =>
+                      onChange({
+                        portalSeats: {
+                          supervisor: setup.portalSeats?.supervisor || '1 of 1',
+                          member: setup.portalSeats?.member || '2 of 2',
+                          special: e.target.value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setShowAddContactModal(false)}
+                >
+                  Save Contacts &amp; Seats
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
