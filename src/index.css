@@ -2346,8 +2346,8 @@ input[type="range"] {
    ============================================================ */
 
 .sidebar-aside {
-  width: 260px;
-  min-width: 260px;
+  width: 276px;
+  min-width: 276px;
   height: 100vh;
   position: sticky;
   top: 0;
@@ -2369,20 +2369,21 @@ input[type="range"] {
 }
 
 .sidebar-header {
-  padding: 18px 16px;
+  padding: 16px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid #eef2ec;
-  gap: 10px;
+  gap: 8px;
   min-height: 65px;
 }
 
 .sidebar-brand-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  overflow: hidden;
+  gap: 9px;
+  min-width: 0;
+  flex: 1;
 }
 
 .sidebar-logo-box {
@@ -2400,25 +2401,25 @@ input[type="range"] {
 .sidebar-brand-text {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  min-width: 0;
   white-space: nowrap;
 }
 
 .sidebar-app-name {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--primary-forest);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   line-height: 1.2;
 }
 
 .sidebar-app-sub {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-collapse-btn {

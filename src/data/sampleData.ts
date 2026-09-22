@@ -18,12 +18,12 @@ export const SAMPLE_ORG_SETUP: OrganizationSetup = {
   entities: ['44 EMB Studios - Mumbai', '44 EMB Studios - Surat Facility', '44 EMB Studios - London Showroom'],
   primaryContact: {
     name: 'Ms. Sufera Adenwala',
-    email: 'sufera@44embstudio.com',
+    email: 'primary.contact@example.com',
     role: 'Primary Contact & ESG Account Lead',
   },
   secondaryContact: {
     name: 'Ms. Misbah Kapadia',
-    email: 'admin-2@44embstudio.com',
+    email: 'audit.coordinator@example.com',
     role: 'Lead Verification Coordinator',
   },
   portalSeats: {

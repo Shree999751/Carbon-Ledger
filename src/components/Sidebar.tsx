@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   Compass,
   Leaf,
@@ -10,16 +10,11 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
-  Upload,
-  FileSpreadsheet,
-  Printer,
-  RotateCcw,
   ShieldCheck,
   Award,
   X,
 } from 'lucide-react';
 import { MainTabType, OrganizationSetup, CalculatedInventory } from '../types/ghg';
-import { parseCsvFile } from '../utils/csvHelper';
 
 interface SidebarProps {
   activeTab: MainTabType;
@@ -48,8 +43,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClear,
   onShowToast,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const navItems: {
     id: MainTabType;
     label: string;
@@ -103,23 +96,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     if (isMobileOpen) {
       onCloseMobile();
     }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const text = evt.target?.result as string;
-      const res = parseCsvFile(text);
-      if (res.valid) {
-        onShowToast(`Uploaded CSV: ${res.rowsCount} activity rows identified`);
-      } else {
-        onShowToast('Invalid or empty CSV file');
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
   };
 
   const grandTotal = calculated.grandTotalT;
@@ -287,65 +263,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        {/* QUICK UTILITY ACTION SHORTCUTS */}
-        <div className="sidebar-actions-section">
-          {!isCollapsed && (
-            <div className="sidebar-section-title">TOOLS &amp; ACTIONS</div>
-          )}
-
-          <div className="sidebar-action-buttons">
-            <button
-              type="button"
-              className="btn-sidebar-action"
-              onClick={onLoadSample}
-              title="Load Sample Data"
-            >
-              <FileSpreadsheet size={15} />
-              {!isCollapsed && <span>Load Sample Data</span>}
-            </button>
-
-            <button
-              type="button"
-              className="btn-sidebar-action"
-              onClick={() => fileInputRef.current?.click()}
-              title="Upload CSV File"
-            >
-              <Upload size={15} />
-              {!isCollapsed && <span>Upload CSV</span>}
-            </button>
-
-            <button
-              type="button"
-              className="btn-sidebar-action"
-              onClick={() => {
-                onChangeTab('report');
-                if (isMobileOpen) onCloseMobile();
-              }}
-              title="Print / Save PDF Report"
-            >
-              <Printer size={15} />
-              {!isCollapsed && <span>Print / Export PDF</span>}
-            </button>
-
-            <button
-              type="button"
-              className="btn-sidebar-action danger"
-              onClick={onClear}
-              title="Reset All Activity Data"
-            >
-              <RotateCcw size={15} />
-              {!isCollapsed && <span>Clear Data</span>}
-            </button>
-          </div>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".csv"
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-          />
-        </div>
 
         {/* SIDEBAR FOOTER: ASSURANCE STATUS */}
         <div className="sidebar-footer">

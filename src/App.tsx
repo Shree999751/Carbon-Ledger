@@ -47,7 +47,22 @@ export const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.setup) return { currency: 'GBP', ...parsed.setup };
+        if (parsed.setup) {
+          const loadedSetup = { currency: 'GBP', ...parsed.setup };
+          if (loadedSetup.primaryContact?.email === 'sufera@44embstudio.com') {
+            loadedSetup.primaryContact = {
+              ...loadedSetup.primaryContact,
+              email: 'primary.contact@example.com',
+            };
+          }
+          if (loadedSetup.secondaryContact?.email === 'admin-2@44embstudio.com') {
+            loadedSetup.secondaryContact = {
+              ...loadedSetup.secondaryContact,
+              email: 'audit.coordinator@example.com',
+            };
+          }
+          return loadedSetup;
+        }
       } catch (e) {}
     }
     return {

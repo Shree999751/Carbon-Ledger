@@ -375,7 +375,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
                   {setup.primaryContact?.name || 'Ms. Sufera Adenwala'}
                 </div>
                 <div className="contact-person-email">
-                  {setup.primaryContact?.email || 'sufera@44embstudio.com'}
+                  {setup.primaryContact?.email || 'primary.contact@example.com'}
                 </div>
               </div>
 
@@ -387,7 +387,7 @@ export const SetupTab: React.FC<SetupTabProps> = ({
                   {setup.secondaryContact?.name || 'Ms. Misbah Kapadia'}
                 </div>
                 <div className="contact-person-email">
-                  {setup.secondaryContact?.email || 'admin-2@44embstudio.com'}
+                  {setup.secondaryContact?.email || 'audit.coordinator@example.com'}
                 </div>
               </div>
             </div>
